@@ -187,7 +187,7 @@
   - Realizar suscripción para recibir novedades sobre eventos sísmicos
   - Anular suscripción para recibir novedades sobre eventos sísmicos
   - Consultar eventos sísmicos ocurridos
-  - 
+
 ---
 
 ## 🧩 Modelo de Dominio
