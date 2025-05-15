@@ -1,0 +1,49 @@
+{{define "list-es"}}
+<div class="card p-3 m-2 shadow">
+  <div class="row">
+    <div class="col-4 overflow-auto" style="height: 400px">
+      <div id="list" class="list-group shadow-sm">
+        {{ range $index, $eventoSismico := .cardsEventoSismico }}
+        <a class="list-group-item list-group-item-action" href="#{{$index}}"
+          >Evento sísmico: {{ add $index 1}}</a
+        >
+        {{end}}
+      </div>
+    </div>
+    <div class="col-8">
+      <div
+        data-bs-spy="scroll"
+        data-bs-target="#list"
+        data-bs-smooth-scroll="true"
+        class="scrollspy p-3 rounded-2"
+        style="position: relative; height: 400px; overflow: auto"
+        tabindex="0"
+      >
+        {{ range $index, $eventoSismico := .cardsEventoSismico }}
+        <div id="{{$index}}" class="card m-3 shadow-sm" style="width: 95%">
+          <div class="card-header pt-3">
+            <h4 class="card-title">Evento sísmico: {{ add $index 1}}</h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush list-unstyled">
+              {{ range $item := $eventoSismico }}
+              <li class="card-text">
+                <strong>{{ $item.Titulo }}:</strong> {{ $item.Dato }}
+              </li>
+              {{ end }}
+            </ul>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Extra info</li>
+          </ul>
+          <div class="card-body">
+            <a href="#" class="btn btn-primary">Detalle</a>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+
+  {{end}}
+</div>

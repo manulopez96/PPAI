@@ -1,0 +1,14 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  color: #333;
+  padding: 20px;
+}
+
+h1 {
+  color: #007bff;
+}
+
+html {
+  scroll-behavior: smooth;
+}

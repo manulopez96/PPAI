@@ -1,0 +1,10 @@
+{{ define "hora" }}
+
+<h1>Bienvenido {{ .name }}</h1>
+<p>Este es un ejemplo de plantilla en Go.</p>
+<p>La fecha y hora del primer renderizado es: {{ .currentTime }}</p>
+<span id="clock"></span>
+
+<script src="/static/js/getHora.js"></script>
+
+{{ end }}

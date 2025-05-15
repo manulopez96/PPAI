@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>PPAI</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link href="/static/css/style.css" rel="stylesheet" />
+  </head>
+  <body class="bg-dark text-light" data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <div
+            class="spinner-grow text-success"
+            style="width: 3rem; height: 3rem"
+            role="status"
+          ></div>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/inicio"
+                >Inicio</a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle active"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Empleado
+              </a>
+              {{if eq .empleado ""}}
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/login">Iniciar sesion</a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <span class="dropdown-item" href="#">No registrado</span>
+                </li>
+              </ul>
+              {{end}} {{if ne .empleado ""}}
+
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/login">Cambiar sesion</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/cerrarsesion"
+                    >Cerrar sesion</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <span class="dropdown-item" href="#">{{.empleado}}</span>
+                </li>
+              </ul>
+              {{end}}
+            </li>
+            {{if ne .empleado ""}}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle active"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Simular
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <form action="/sim-es-a" method="POST">
+                    <input
+                      type="text"
+                      class="form-control d-none"
+                      id="sim-tipo"
+                      name="sim-tipo"
+                      required
+                      value="aleatorio"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Generar sismo aleatorio
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/sim-es-a" method="POST">
+                    <input
+                      type="text"
+                      class="form-control d-none"
+                      id="sim-tipo"
+                      name="sim-tipo"
+                      required
+                      value="mayor4.0"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Generar sismo mayor a 4.0
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/sim-es-a" method="POST">
+                    <input
+                      type="text"
+                      class="form-control d-none"
+                      id="sim-tipo"
+                      name="sim-tipo"
+                      required
+                      value="menor4.0"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Generar sismo menor a 4.0
+                    </button>
+                  </form>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <span class="dropdown-item" href="#">Only test</span>
+                </li>
+              </ul>
+            </li>
+            {{end}}
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/list-es"
+                >Eventos Sismicos</a
+              >
+            </li>
+          </ul>
+
+          <!-- <form class="d-flex" role="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-outline-success" type="submit">
+              Search
+            </button>
+          </form> -->
+        </div>
+      </div>
+    </nav>
+
+    {{ if eq .templ "formulario" }} {{ template "formulario" . }} {{ else if eq
+    .templ "login" }} {{ template "login" . }} {{ else if eq .templ "principal"
+    }} {{ template "principal" . }} {{ else if eq .templ "sim-es-a" }} {{
+    template "sim-es-a" . }} {{ else if eq .templ "list-es" }} {{ template
+    "list-es" . }} {{ end }}
+  </body>
+</html>

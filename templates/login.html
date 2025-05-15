@@ -1,0 +1,87 @@
+{{define "login"}}
+
+<div class="container mt-5 text-white">
+  <h2 class="mb-3">Login</h2>
+
+  {{if .mensaje}}
+  <div class="alert alert-success alert-dismissible" role="alert">
+    <div id="mensaje">{{.mensaje}}</div>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {{end}}
+
+  <form method="POST" action="/login" id="login-form">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input
+        type="text"
+        class="form-control"
+        id="nombre"
+        name="nombre"
+        required
+        value="{{.nombre}}"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="apellido" class="form-label">Apellido</label>
+      <input
+        type="text"
+        class="form-control"
+        id="apellido"
+        name="apellido"
+        required
+        value="{{.apellido}}"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="telefono" class="form-label">Telefono</label>
+      <input
+        type="phone"
+        class="form-control"
+        id="telefono"
+        name="telefono"
+        required
+        value="{{.telefono}}"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        name="email"
+        required
+        value="{{.email}}"
+      />
+    </div>
+    <button type="submit" id="button-form" class="btn btn-primary">
+      Enviar
+    </button>
+  </form>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("login-form");
+    const success = document.getElementById("mensaje");
+
+    form.addEventListener("submit", (e) => {
+      const nombre = document.getElementById("nombre").value;
+      if (nombre.length < 3) {
+        e.preventDefault();
+        alert("El nombre debe tener al menos 3 caracteres.");
+      }
+    });
+    if (success) {
+      setTimeout(function () {
+        window.location.href = "/inicio"; // Ruta a donde querés redirigir
+      }, 1500); // 2000 milisegundos = 2 segundos
+    }
+  });
+</script>
+{{end}}

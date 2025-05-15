@@ -1,0 +1,65 @@
+{{ define "sim-es-a" }}
+
+<div class="container mt-3 text-center">
+  <h1>{{ .title }}</h1>
+</div>
+
+<div
+  class="card text-bg-dark mx-auto my-5"
+  style="width: 35rem; height: 25rem; opacity: 0.9"
+>
+  <img
+    src="/static/img/sismografo.webp"
+    class="card-img"
+    alt="..."
+    style="height: 500px; object-fit: cover"
+  />
+  <div
+    class="card-img-overlay d-flex flex-column justify-content-end"
+    style="background-color: rgba(0, 0, 0, 0.7)"
+  >
+    <h5 class="card-title">Evento sismico: {{.cardTitle}}</h5>
+    <ul>
+      {{ range .eventoSismico }}
+      <li class="card-text"><strong>{{ .Titulo }}:</strong> {{ .Dato }}</li>
+      {{ end }}
+    </ul>
+    <!-- <p class="card-text">Texto más corto para prueba.</p> -->
+    <!-- <p class="card-text"><small>Hace 3 minutos</small></p> -->
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div
+    id="liveToast"
+    class="toast"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="toast-header shadow-sm">
+      <strong class="me-auto">Notificacion</strong>
+      <small>Now</small>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="toast-body">Evento sismico generado</div>
+    <!-- <p>Valor magnitud: {{ printf "%.2f" .eventoSismicoValorMagnitud }}</p> -->
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(function () {
+      window.location.href = "/list-es"; // Ruta a donde querés redirigir
+    }, 60000); // milisegundos
+    const toastLive = document.getElementById("liveToast");
+
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+    toastBootstrap.show();
+  });
+</script>
+{{ end }}
