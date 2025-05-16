@@ -22,8 +22,18 @@ func imprimirSesion(s object.Empleado) {
 }
 
 var sesionActual object.Empleado
+var clasificaciones []object.ClasificacionSismo
 
 func main() {
+
+	// Codigo Hardcodeado para pruebas
+	eventosSismicos := []object.EventoSismico{}
+
+	clasificaciones = []object.ClasificacionSismo{}
+	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(0, 70, "Superficial"))
+	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(70, 300, "Intermedio"))
+	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(300, 700, "Profundo"))
+
 	r := gin.Default() // Crea una instancia del router con middlewares por defecto
 	// gin.SetMode(gin.ReleaseMode)
 
@@ -50,13 +60,7 @@ func main() {
 	empleado.RegisterRoutes(r)
 	login.RegisterRoutes(r)
 
-	// Variable y objetos del gestionador
-	eventosSismicos := []object.EventoSismico{}
-
-	r.GET("/hello", func(c *gin.Context) {
-		c.String(200, "¡Hola mundo!")
-	})
-
+	// Index principal, donde se cargan todas las plantillas
 	inicio := func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":    "Proyecto PPAI",
@@ -66,11 +70,11 @@ func main() {
 		})
 	}
 
-	// Ruta principal
+	// Ruta inicio
 	r.GET("/", inicio)
 	r.GET("/inicio", inicio)
 
-	// Mostrar login
+	// Login template
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"empleado": sesionActual.Nombre,
@@ -95,7 +99,8 @@ func main() {
 		imprimirSesion(sesionActual)
 
 	})
-	// ruta para cerrar sesion
+
+	// Cerrar sesion
 	r.GET("/cerrarsesion", func(c *gin.Context) {
 		imprimirSesion(sesionActual)
 		sesionActual = object.Empleado{}
@@ -163,14 +168,19 @@ func generarEventoSismicoAleatorio(tipo string) object.EventoSismico {
 	}
 	// Generar un evento sísmico aleatorio
 	fechaHoraOcurrencia := time.Now()
-	latitudEpicentro := floatAleatorio(1000)
-	longitudEpicentro := floatAleatorio(1000)
-	hipocentro := floatAleatorio(1000)
+	latitudEpicentro := floatAleatorio(2000)
+	longitudEpicentro := floatAleatorio(2000)
+	hipocentro := floatAleatorio(700)
 	valorMagnitud := floatAleatorio(magnitudMaxima) + float64(magnitudMinima)
 	analistaSupervisor := sesionActual
-
+	clasificacion := clasificaciones[0]
+	for _, clasificacionItem := range clasificaciones {
+		if clasificacionItem.EsClasificacion(hipocentro) {
+			clasificacion = clasificacionItem
+		}
+	}
 	// if tipo == "aleatorio" {	}
-	return *object.NewEventoSismico(fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor)
+	return *object.NewEventoSismico(fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion)
 }
 
 func floatAleatorio(limite int) float64 {

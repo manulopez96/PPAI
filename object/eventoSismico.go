@@ -13,6 +13,26 @@ type EventoSismico struct {
 	hipocentro          float64
 	valorMagnitud       float64
 	analistaSupervisor  Empleado
+	clasificacion       ClasificacionSismo
+}
+
+func NewEventoSismico(
+	fechaHoraOcurrencia time.Time,
+	latitudEpicentro float64,
+	longitudEpicentro float64,
+	hipocentro float64,
+	valorMagnitud float64,
+	analistaSupervisor Empleado,
+	clasificacion ClasificacionSismo) *EventoSismico {
+	return &EventoSismico{
+		fechaHoraOcurrencia: fechaHoraOcurrencia,
+		latitudEpicentro:    latitudEpicentro,
+		longitudEpicentro:   longitudEpicentro,
+		hipocentro:          hipocentro,
+		valorMagnitud:       valorMagnitud,
+		analistaSupervisor:  analistaSupervisor,
+		clasificacion:       clasificacion,
+	}
 }
 
 func (e *EventoSismico) GetValorMagnitud() float64 {
@@ -42,22 +62,6 @@ func (e *EventoSismico) GetHipocentro() float64 {
 func (e *EventoSismico) String() string {
 	return "\nEvento Sismico: " + e.fechaHoraOcurrencia.String() + "\nLatitud epicentro: " + strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64) + "\nLongitud epicentro:  " + strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64) + "\nHipocentro:  " + strconv.FormatFloat(e.hipocentro, 'f', 2, 64) + "\nAnalista supervisor: " + e.analistaSupervisor.Nombre + " " + e.analistaSupervisor.Apellido + "\nValor magnitud: " + strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64) + "\n"
 }
-func NewEventoSismico(
-	fechaHoraOcurrencia time.Time,
-	latitudEpicentro float64,
-	longitudEpicentro float64,
-	hipocentro float64,
-	valorMagnitud float64,
-	analistaSupervisor Empleado) *EventoSismico {
-	return &EventoSismico{
-		fechaHoraOcurrencia: fechaHoraOcurrencia,
-		latitudEpicentro:    latitudEpicentro,
-		longitudEpicentro:   longitudEpicentro,
-		hipocentro:          hipocentro,
-		valorMagnitud:       valorMagnitud,
-		analistaSupervisor:  analistaSupervisor,
-	}
-}
 
 func (e *EventoSismico) CardDatos() []ESCard {
 
@@ -69,6 +73,7 @@ func (e *EventoSismico) CardDatos() []ESCard {
 		"Valor magnitud",
 		"Analista supervisor nombre",
 		"Analista supervisor apellido",
+		"Clasificación",
 	}
 	datos := []string{
 		e.fechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
@@ -78,6 +83,7 @@ func (e *EventoSismico) CardDatos() []ESCard {
 		strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64),
 		e.analistaSupervisor.Nombre,
 		e.analistaSupervisor.Apellido,
+		e.clasificacion.GetNombre(),
 	}
 
 	var pares []ESCard
@@ -95,7 +101,10 @@ type ESCard struct {
 	Dato   string
 }
 
-// TODO: Implementar getClasificacion
+func (e *EventoSismico) GetCalificacion(hipocentro float64, c ClasificacionSismo) bool {
+	return c.EsClasificacion(hipocentro)
+}
+
 // TODO: Implementar GetOrigen
 // TODO: Implementar GetAlcance
 // TODO: Implementar relacion magnitud

@@ -22,7 +22,6 @@ PGPASSWORD="$DB_PASS" psql -U "$DB_USER" -h "$DB_HOST" -p "$DB_PORT" -c "CREATE 
 
 go mod tidy
 
-
 # firefox --class "WebApp-TEST9224" \
 #         --name "WebApp-TEST9224" \
 #         --profile "$HOME/.local/share/ice/firefox/TEST9224" \
@@ -30,4 +29,13 @@ go mod tidy
 # disown
 
 
+firefox --kiosk "http://localhost:8080/" & disown
+
+
+go build -o ./ppai ./cmd/main.go
+# ./ppai 
 go run ./cmd/main.go
+
+# pkill firefox
+pkill -f "localhost:8080"
+

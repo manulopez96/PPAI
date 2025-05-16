@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=PPAI
+Comment=Abrir localhost:8080
+Exec=/home/userl/Escritorio/AreaPersonal/UTNFRC/DSI/PPAI/run.sh
+Path=/home/userl/Escritorio/AreaPersonal/UTNFRC/DSI/PPAI
+Icon=applications-development
+Terminal=false
+Type=Application
+Categories=Development;
