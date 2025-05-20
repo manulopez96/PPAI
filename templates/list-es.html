@@ -1,5 +1,5 @@
 {{define "list-es"}}
-<div class="card p-4 m-auto shadow">
+<div class="card p-5 m-auto shadow">
   <div class="row">
     <div class="col-4 overflow-auto" style="height: 80vh">
       <div id="list" class="list-group shadow-sm">
@@ -10,7 +10,7 @@
         {{end}}
       </div>
     </div>
-    <div class="col-8 ">
+    <div class="col-8">
       <div
         data-bs-spy="scroll"
         data-bs-target="#list"
@@ -20,24 +20,131 @@
         tabindex="0"
       >
         {{ range $index, $eventoSismico := .cardsEventoSismico }}
-        <div id="{{$index}}" class="card m-2 shadow-sm" style="width: 95%">
+        <div id="{{$index}}" class="card mb-5 m-2 shadow-sm" style="width: 95%">
           <div class="card-header pt-3">
             <h4 class="card-title">Evento sísmico: {{ add $index 1}}</h4>
           </div>
           <div class="card-body">
             <ul class="list-group list-group-flush list-unstyled">
-              {{ range $item := $eventoSismico }}
-              <li class="card-text">
-                <strong>{{ $item.Titulo }}:</strong> {{ $item.Dato }}
+              <li>
+                <strong>Fecha y hora de la ocurrencia:</strong>{{
+                $eventoSismico.FechaHoraOcurrencia }}
               </li>
-              {{ end }}
+              <li>
+                <strong>Latitud del epicentro:</strong>
+                {{$eventoSismico.LatitudEpicentro }}
+              </li>
+              <li>
+                <strong>Longitud del epicentro:</strong>
+                {{$eventoSismico.LongitudEpicentro }}
+              </li>
+              <li>
+                <strong>Hipocentro:</strong>
+                {{ $eventoSismico.Hipocentro }}
+              </li>
+              <li>
+                <strong>Valor magnitud:</strong>
+                {{ $eventoSismico.ValorMagnitud }}
+              </li>
+              <li>
+                <strong>Analista supervisor:</strong>
+                {{ $eventoSismico.AnalistaSupervisorNombre}} {{
+                $eventoSismico.AnalistaSupervisorApellido }}
+              </li>
+              <li>
+                <strong>Clasificacion:</strong>
+                {{ $eventoSismico.Clasificacion }}
+              </li>
+              <li>
+                <strong>Origen del sismo:</strong>
+                {{ $eventoSismico.OrigenDeGeneracion }}
+              </li>
+              <li>
+                <strong>Alcance:</strong>
+                {{ $eventoSismico.AlcanceSismo }}
+              </li>
+              <li>
+                <strong>Estado:</strong>
+                {{ $eventoSismico.EstadoActual }}
+              </li>
             </ul>
           </div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">Extra info</li>
+            <div class="card-body">
+              {{ range $Estado := $eventoSismico.Estado }}
+              <ul class="list-group list-group-flush list-unstyled">
+                <li>
+                  <strong>Inicio del estado:</strong>
+                  {{ $Estado.FechaHoraInicio }}
+                </li>
+                <li>
+                  <strong>Fin del estado:</strong>
+                  {{ $Estado.FechaHoraFin }}
+                </li>
+                <li>
+                  <strong>Estado:</strong>
+                  {{ $Estado.Estado }}
+                </li>
+                <li>
+                  <strong>Responsable de la inspeccion:</strong>
+                  {{ $Estado.ResponsableInspeccion }}
+                </li>
+              </ul>
+              {{ end }}
+            </div>
           </ul>
           <div class="card-body">
-            <a href="#" class="btn btn-primary">Detalle</a>
+            <form action="/review-es" method="POST">
+              <input
+                type="text"
+                class="form-control d-none"
+                id="index"
+                name="index"
+                required
+                value="{{$index}}"
+              />
+              {{ if eq $eventoSismico.EstadoActual "Auto Confirmado"}}
+              <input type="hidden" id="accion" name="accion" value="" />
+              <button
+                type="submit"
+                class="btn btn-success m-2"
+                onclick="setAccion('notificar')"
+              >
+                Notificar
+              </button>
+              {{else if eq $eventoSismico.EstadoActual "Pendiente de revision"}}
+              <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="setAccion('revisar')"
+              >
+                Revisión
+              </button>
+              <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="setAccion('anular')"
+              >
+                Anular
+              </button>
+              {{else if eq $eventoSismico.EstadoActual "Pendiente de cierre"}}
+              <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="setAccion('cerrar')"
+              >
+                Cerrar
+              </button>
+              {{else}}
+              <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="setAccion('revisar')"
+              >
+                Revisión
+              </button>
+              {{end}}
+            </form>
           </div>
         </div>
         {{ end }}
@@ -45,4 +152,9 @@
     </div>
   </div>
 </div>
+<script>
+  function setAccion(valor) {
+    document.getElementById("accion").value = valor;
+  }
+</script>
 {{end}}

@@ -14,6 +14,10 @@ type EventoSismico struct {
 	valorMagnitud       float64
 	analistaSupervisor  Empleado
 	clasificacion       ClasificacionSismo
+	origenDeGeneracion  OrigenDeGeneracion
+	alcanceSismo        AlcanceSismo
+	estadoActual        Estado
+	estado              []CambioEstado
 }
 
 func NewEventoSismico(
@@ -23,7 +27,17 @@ func NewEventoSismico(
 	hipocentro float64,
 	valorMagnitud float64,
 	analistaSupervisor Empleado,
-	clasificacion ClasificacionSismo) *EventoSismico {
+	clasificacion ClasificacionSismo,
+	origenDeGeneracion OrigenDeGeneracion,
+	alcanceSismo AlcanceSismo,
+) *EventoSismico {
+	estados := GetEstadosMuestra()
+	estadoInicial := estados[1]
+	if valorMagnitud >= 4.0 {
+		estadoInicial = estados[0]
+	}
+	var estado []CambioEstado
+	estado = append(estado, NewCambioEstado(estadoInicial, analistaSupervisor))
 	return &EventoSismico{
 		fechaHoraOcurrencia: fechaHoraOcurrencia,
 		latitudEpicentro:    latitudEpicentro,
@@ -32,6 +46,10 @@ func NewEventoSismico(
 		valorMagnitud:       valorMagnitud,
 		analistaSupervisor:  analistaSupervisor,
 		clasificacion:       clasificacion,
+		origenDeGeneracion:  origenDeGeneracion,
+		alcanceSismo:        alcanceSismo,
+		estadoActual:        estadoInicial,
+		estado:              estado,
 	}
 }
 
@@ -51,68 +69,101 @@ func (e *EventoSismico) GetHora() string {
 func (e *EventoSismico) GetLatitudEpicentro() float64 {
 	return e.latitudEpicentro
 }
-
 func (e *EventoSismico) GetLongitudEpicentro() float64 {
 	return e.longitudEpicentro
 }
-
 func (e *EventoSismico) GetHipocentro() float64 {
 	return e.hipocentro
 }
+
+func (e *EventoSismico) SetAnalistaSupervisor(a Empleado) {
+	e.analistaSupervisor = a
+}
+func (e *EventoSismico) GetAnalistaSupervisor() Empleado {
+	return e.analistaSupervisor
+}
+func (e *EventoSismico) SetClasificacion(c ClasificacionSismo) {
+	e.clasificacion = c
+}
+func (e *EventoSismico) GetClasificacion() ClasificacionSismo {
+	return e.clasificacion
+}
+func (e *EventoSismico) SetOrigenDeGeneracion(o OrigenDeGeneracion) {
+	e.origenDeGeneracion = o
+}
+func (e *EventoSismico) GetOrigenDeGeneracion() OrigenDeGeneracion {
+	return e.origenDeGeneracion
+}
+func (e *EventoSismico) SetAlcanceSismo(a AlcanceSismo) {
+	e.alcanceSismo = a
+}
+func (e *EventoSismico) GetAlcanseSismo() AlcanceSismo {
+	return e.alcanceSismo
+}
+
+func (e *EventoSismico) SetEstadoActual(es Estado, ri Empleado) {
+	i := len(e.estado) - 1
+	fin := time.Now()
+	e.estado[i].SetFechaHoraFin(&fin)
+	e.estado = append(e.estado, NewCambioEstado(es, ri))
+	e.estadoActual = es
+}
+func (e *EventoSismico) GetEstadoActual() Estado {
+	return e.estadoActual
+}
+func (e *EventoSismico) GetCambioDeEstado() []CambioEstado {
+	return e.estado
+}
+
 func (e *EventoSismico) String() string {
 	return "\nEvento Sismico: " + e.fechaHoraOcurrencia.String() + "\nLatitud epicentro: " + strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64) + "\nLongitud epicentro:  " + strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64) + "\nHipocentro:  " + strconv.FormatFloat(e.hipocentro, 'f', 2, 64) + "\nAnalista supervisor: " + e.analistaSupervisor.Nombre + " " + e.analistaSupervisor.Apellido + "\nValor magnitud: " + strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64) + "\n"
 }
 
-func (e *EventoSismico) CardDatos() []ESCard {
+func (e *EventoSismico) GetCardEventoSismico() ESCard {
 
-	titulos := []string{
-		"Fecha y hora",
-		"Latitud epicentro",
-		"Longitud epicentro",
-		"Hipocentro",
-		"Valor magnitud",
-		"Analista supervisor nombre",
-		"Analista supervisor apellido",
-		"Clasificación",
-	}
-	datos := []string{
-		e.fechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
-		strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64),
-		strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64),
-		strconv.FormatFloat(e.hipocentro, 'f', 2, 64),
-		strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64),
-		e.analistaSupervisor.Nombre,
-		e.analistaSupervisor.Apellido,
-		e.clasificacion.GetNombre(),
+	var cardEstados []CECard
+	for _, cambioEstado := range e.estado {
+		cardEstados = append(cardEstados, cambioEstado.GetCardCambioEstado())
 	}
 
-	var pares []ESCard
-	for i := range titulos {
-		pares = append(pares, ESCard{
-			Titulo: titulos[i],
-			Dato:   datos[i],
-		})
+	cardEventoSismico := ESCard{
+		FechaHoraOcurrencia:        e.fechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
+		LatitudEpicentro:           strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64),
+		LongitudEpicentro:          strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64),
+		Hipocentro:                 strconv.FormatFloat(e.hipocentro, 'f', 2, 64),
+		ValorMagnitud:              strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64),
+		AnalistaSupervisorNombre:   e.analistaSupervisor.Nombre,
+		AnalistaSupervisorApellido: e.analistaSupervisor.Apellido,
+		Clasificacion:              e.clasificacion.GetNombre(),
+		OrigenDeGeneracion:         e.origenDeGeneracion.GetNombre(),
+		AlcanceSismo:               e.alcanceSismo.GetNombre(),
+		EstadoActual:               e.estadoActual.GetNombre(),
+		Estado:                     cardEstados,
 	}
-	return pares
+	return cardEventoSismico
 }
 
 type ESCard struct {
-	Titulo string
-	Dato   string
+	FechaHoraFin               string
+	FechaHoraOcurrencia        string
+	LatitudEpicentro           string
+	LongitudEpicentro          string
+	Hipocentro                 string
+	ValorMagnitud              string
+	AnalistaSupervisorNombre   string
+	AnalistaSupervisorApellido string
+	Clasificacion              string
+	OrigenDeGeneracion         string
+	AlcanceSismo               string
+	EstadoActual               string
+	Estado                     []CECard
 }
 
 func (e *EventoSismico) GetCalificacion(hipocentro float64, c ClasificacionSismo) bool {
 	return c.EsClasificacion(hipocentro)
 }
 
-// TODO: Implementar GetOrigen
-// TODO: Implementar GetAlcance
 // TODO: Implementar relacion magnitud
-// TODO: Implementar relacion clasificacion
-// TODO: Implementar relacion origenGeneracion
-// TODO: Implementar relacion alcanceSismo
-// TODO: Implementar relacion estadoActual
-// TODO: Implementar relacion cambioEstado
 // TODO: Implementar relacion serieTemporal
 
 // Fecha y hora de ocurrencia.

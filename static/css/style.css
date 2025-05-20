@@ -2,7 +2,6 @@ body {
   font-family: Arial, sans-serif;
   background-color: #ffffff;
   color: #333;
-  padding: 20px;
 }
 
 h1 {
@@ -11,4 +10,7 @@ h1 {
 
 html {
   scroll-behavior: smooth;
+  padding: 0;
+  margin: 0;
+  
 }

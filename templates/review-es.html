@@ -1,0 +1,212 @@
+{{define "review-es"}}
+
+<div class="container mt-4 text-center">
+  <h1>{{ .title }}</h1>
+</div>
+<form action="/review-es" method="POST" id="form-review">
+  <div class="d-flex flex-wrap flex-lg-wrap">
+    <div class="mb-3 p-2 col-6">
+      <label for="date-ocurrencia" class="form-label"
+        >Fecha y hora de ocurrencia</label
+      >
+      <input
+        type="datetime-local"
+        class="form-control"
+        disabled
+        id="date-ocurrencia"
+        value="{{.cardEventoSismico.FechaHoraOcurrencia}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-6">
+      <label for="date-fin" class="form-label">Fecha y hora fin de sismo</label>
+      <input
+        type="datetime-local"
+        class="form-control"
+        id="date-fin"
+        name="date-fin"
+        value="{{.cardEventoSismico.FechaHoraFin}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="latitud-epicentro" class="form-label"
+        >Latitud epicentro</label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="latitud-epicentro"
+        name="latitud-epicentro"
+        value="{{.cardEventoSismico.LatitudEpicentro}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="longitud-epicentro" class="form-label"
+        >Longitud epicentro</label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="longitud-epicentro"
+        name="longitud-epicentro"
+        value="{{.cardEventoSismico.LongitudEpicentro}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="hipocentro" class="form-label">Hipocentro</label>
+      <input
+        type="text"
+        class="form-control"
+        id="hipocentro"
+        name="hipocentro"
+        value="{{.cardEventoSismico.Hipocentro}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="valor-magnitud" class="form-label">Valor Magnitud</label>
+      <input
+        type="text"
+        class="form-control"
+        id="valor-magnitud"
+        name="valor-magnitud"
+        value="{{.cardEventoSismico.ValorMagnitud}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="analista" class="form-label">Analista supervisor</label>
+      <input
+        type="text"
+        class="form-control"
+        disabled
+        id="analista"
+        value="{{.cardEventoSismico.AnalistaSupervisorNombre}} {{.cardEventoSismico.AnalistaSupervisorApellido}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="clasificacion" class="form-label">Clasificacion</label>
+      <input
+        type="text"
+        class="form-control"
+        disabled
+        id="clasificacion"
+        value="{{.cardEventoSismico.Clasificacion}}"
+      />
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="origen" class="form-label">Origen</label>
+      <select id="origen" name="origen" class="form-select">
+        {{ range $index, $o := .origenGeneracion }} {{ if eq $o.Nombre
+        $.cardEventoSismico.OrigenDeGeneracion }}
+        <option value="{{$o.Nombre}}" selected>{{ $o.Nombre }}</option>
+        {{else}}
+        <option value="{{$o.Nombre}}">{{ $o.Nombre }}</option>
+        {{end}} {{end}}
+      </select>
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="alcance" class="form-label">Alcance del sismo</label>
+      <select id="alcance" name="alcance" class="form-select">
+        {{ range $index, $a := .alcanceSismo }} {{ if eq $a.Nombre
+        $.cardEventoSismico.AlcanceSismo }}
+        <option value="{{$a.Nombre}}" selected>{{ $a.Nombre }}</option>
+        {{else}}
+        <option value="{{$a.Nombre}}">{{ $a.Nombre }}</option>
+        {{end}} {{end}}
+      </select>
+    </div>
+    <div class="mb-3 p-2 col-4">
+      <label for="estado" class="form-label">Ultimo estado</label>
+      <input
+        type="text"
+        class="form-control"
+        disabled
+        id="estado"
+        value="{{.cardEventoSismico.EstadoActual}}"
+      />
+    </div>
+  </div>
+
+  <div class="my-5 p-2 d-flex">
+    <input type="hidden" id="accion" name="accion" value="" />
+    <button
+      type="submit"
+      class="btn btn-success m-2"
+      onclick="setAccion('aceptado')"
+    >
+      Aceptar
+    </button>
+    <button
+      type="submit"
+      class="btn btn-primary m-2"
+      onclick="setAccion('derivado')"
+    >
+      Derivar
+    </button>
+    <button
+      type="submit"
+      class="btn btn-danger m-2"
+      onclick="setAccion('rechazado')"
+    >
+      Rechazar
+    </button>
+  </div>
+</form>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div
+    id="liveToast"
+    class="toast"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="toast-header shadow-sm">
+      <strong class="me-auto">Notificacion</strong>
+      <small>Now</small>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="toast-body">Enviando..</div>
+  </div>
+</div>
+
+<!-- 
+<div class="mb-3 d-none">
+  <label for="InputEmail1" class="form-label">Email address</label>
+  <input
+    type="email"
+    class="form-control"
+    id="InputEmail1"
+    aria-describedby="emailHelp"
+  />
+  <div id="emailHelp" class="form-text">
+    We'll never share your email with anyone else.
+  </div>
+</div>
+<div class="mb-3 form-check d-none">
+  <input type="checkbox" class="form-check-input" id="Check1" />
+  <label class="form-check-label" for="Check1">Check me out</label>
+</div> 
+-->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("form-review");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const toastLive = document.getElementById("liveToast");
+
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+      toastBootstrap.show();
+    });
+  });
+  function setAccion(valor) {
+    document.getElementById("accion").value = valor;
+  }
+</script>
+
+{{end}}

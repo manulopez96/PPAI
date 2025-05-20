@@ -1,7 +1,7 @@
 {{define "login"}}
 
-<div class="container mt-5 text-white">
-  <h2 class="mb-3">Login</h2>
+<div class="container mt-5 text-white col-8">
+  <h2 class="mb-4">Login</h2>
 
   {{if .mensaje}}
   <div class="alert alert-success alert-dismissible" role="alert">
@@ -15,50 +15,54 @@
   </div>
   {{end}}
 
-  <form method="POST" action="/login" id="login-form">
-    <div class="mb-3">
-      <label for="nombre" class="form-label">Nombre</label>
+  <form method="POST" action="/login" id="login-form" class=" ">
+    <div class="form-floating mb-3">
       <input
         type="text"
         class="form-control"
         id="nombre"
         name="nombre"
+        placeholder=""
         required
         value="{{.nombre}}"
       />
+      <label for="nombre" class="form-label">Nombre</label>
     </div>
-    <div class="mb-3">
-      <label for="apellido" class="form-label">Apellido</label>
+    <div class="form-floating mb-3">
       <input
         type="text"
         class="form-control"
         id="apellido"
         name="apellido"
+        placeholder=""
         required
         value="{{.apellido}}"
       />
+      <label for="apellido" class="form-label">Apellido</label>
     </div>
-    <div class="mb-3">
-      <label for="telefono" class="form-label">Telefono</label>
+    <div class="form-floating mb-3">
       <input
         type="phone"
         class="form-control"
         id="telefono"
         name="telefono"
+        placeholder=""
         required
         value="{{.telefono}}"
       />
+      <label for="telefono" class="form-label">Telefono</label>
     </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Correo</label>
+    <div class="form-floating mb-3">
       <input
         type="email"
         class="form-control"
         id="email"
         name="email"
+        placeholder=""
         required
         value="{{.email}}"
       />
+      <label for="email" class="form-label">Correo</label>
     </div>
     <button type="submit" id="button-form" class="btn btn-primary">
       Enviar

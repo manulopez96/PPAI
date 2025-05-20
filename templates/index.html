@@ -13,7 +13,10 @@
     <link href="/static/css/style.css" rel="stylesheet" />
   </head>
   <body class="bg-dark text-light" data-bs-theme="dark">
-    <nav class="navbar navbar-expand-lg m-0 p-0 pb-2">
+    <nav
+      class="navbar navbar-expand-lg m-0 p-1 py-2 fixed-top bg-black bg-opacity-25"
+      style="margin-bottom: 25px"
+    >
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <div
@@ -142,10 +145,33 @@
               </ul>
             </li>
             {{end}}
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/list-es"
-                >Eventos Sismicos</a
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle active"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
+                Eventos Sismicos
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="text"
+                      class="form-control d-none"
+                      id="filter-list"
+                      name="filter-list"
+                      required
+                      value="all"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Lista de eventos sismicos
+                    </button>
+                  </form>
+                </li>
+              </ul>
             </li>
           </ul>
 
@@ -163,11 +189,15 @@
         </div>
       </div>
     </nav>
-
-    {{ if eq .templ "formulario" }} {{ template "formulario" . }} {{ else if eq
+     <div class="container mt-4 pt-4">
+        <div class="col-12 mt-5">
+              {{ if eq .templ "formulario" }} {{ template "formulario" . }} {{ else if eq
     .templ "login" }} {{ template "login" . }} {{ else if eq .templ "principal"
     }} {{ template "principal" . }} {{ else if eq .templ "sim-es-a" }} {{
     template "sim-es-a" . }} {{ else if eq .templ "list-es" }} {{ template
-    "list-es" . }} {{ end }}
+    "list-es" . }} {{ else if eq .templ "review-es" }} {{ template "review-es" .
+    }} {{ end }}
+        </div>
+  
   </body>
 </html>

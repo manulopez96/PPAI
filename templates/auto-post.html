@@ -1,0 +1,8 @@
+<form id="redirForm" method="POST" action="{{.targetURL}}">
+  <input type="hidden" name="data1" value="{{.data1}}" />
+  <input type="hidden" name="data2" value="{{.data2}}" />
+  <input type="hidden" name="data3" value="{{.data3}}" />
+</form>
+<script>
+  document.getElementById("redirForm").submit();
+</script>

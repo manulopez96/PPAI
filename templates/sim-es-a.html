@@ -20,9 +20,47 @@
   >
     <h5 class="card-title">Evento sismico: {{.cardTitle}}</h5>
     <ul>
-      {{ range .eventoSismico }}
-      <li class="card-text"><strong>{{ .Titulo }}:</strong> {{ .Dato }}</li>
-      {{ end }}
+      <li class="card-text list-unstyled">
+        <strong>Fecha y hora de la ocurrencia: </strong>
+        {{.eventoSismico.FechaHoraOcurrencia }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Latitud del epicentro:</strong>
+        {{.eventoSismico.LatitudEpicentro }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Longitud del epicentro:</strong>
+        {{.eventoSismico.LongitudEpicentro }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Hipocentro:</strong>
+        {{.eventoSismico.Hipocentro }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Valor magnitud:</strong>
+        {{.eventoSismico.ValorMagnitud }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Analista supervisor:</strong>
+        {{.eventoSismico.AnalistaSupervisorNombre}}
+        {{.eventoSismico.AnalistaSupervisorApellido}}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Clasificacion:</strong>
+        {{.eventoSismico.Clasificacion }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Origen del sismo:</strong>
+        {{.eventoSismico.OrigenDeGeneracion }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Alcance:</strong>
+        {{.eventoSismico.AlcanceSismo }}
+      </li>
+      <li class="card-text list-unstyled">
+        <strong>Estado:</strong>
+        {{.eventoSismico.EstadoActual }}
+      </li>
     </ul>
     <!-- <p class="card-text">Texto más corto para prueba.</p> -->
     <!-- <p class="card-text"><small>Hace 3 minutos</small></p> -->
