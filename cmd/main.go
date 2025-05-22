@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-	"ppai/config"
+	"os/exec"
+	"runtime"
+
+	// "ppai/config"
 	"ppai/internal/empleado"
 	"ppai/object"
 	"ppai/pkg/login"
@@ -18,7 +21,7 @@ import (
 func imprimirSesion(s object.Empleado) {
 	fmt.Println("Nombre:", s.Nombre)
 	fmt.Println("Apellido:", s.Apellido)
-	fmt.Println("Emanil:", s.Email)
+	fmt.Println("Email:", s.Email)
 	fmt.Println("Telefono:", s.Telefono)
 }
 
@@ -29,6 +32,13 @@ var alcanceSismo []object.AlcanceSismo
 var estados []object.Estado
 
 func main() {
+
+	r := gin.Default() // Crea una instancia del router con middlewares por defecto
+	// gin.SetMode(gin.ReleaseMode)
+
+	// Configuración de la base de datos
+	// config.ConnectDB()
+	// config.DB.AutoMigrate(&empleado.User{})
 
 	//--------------------------------------------------------------------------------------------------------------------
 	// Codigo Hardcodeado para pruebas
@@ -53,13 +63,6 @@ func main() {
 	estados = object.GetEstadosMuestra()
 
 	//--------------------------------------------------------------------------------------------------------------------
-
-	r := gin.Default() // Crea una instancia del router con middlewares por defecto
-	// gin.SetMode(gin.ReleaseMode)
-
-	// Configuración de la base de datos
-	config.ConnectDB()
-	config.DB.AutoMigrate(&empleado.User{})
 
 	// funciones simples para las plantillas (para las funciones mas delicadas usare js)
 	r.SetFuncMap(template.FuncMap{
@@ -136,7 +139,8 @@ func main() {
 				"templ":    "login",
 			})
 		} else {
-			eventosSismicos = append(eventosSismicos, generarEventoSismicoAleatorio(c.PostForm("sim-tipo")))
+			id := len(eventosSismicos)
+			eventosSismicos = append(eventosSismicos, generarEventoSismicoAleatorio(c.PostForm("sim-tipo"), id))
 			fmt.Println("Evento generado:", eventosSismicos[len(eventosSismicos)-1].String())
 			ultimoEvento := eventosSismicos[len(eventosSismicos)-1]
 			c.HTML(http.StatusOK, "index.html", gin.H{
@@ -151,32 +155,44 @@ func main() {
 
 	// Listar E.S.
 	r.POST("/list-es", func(c *gin.Context) {
-
 		if sesionActual.Nombre == "" {
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"empleado": sesionActual.Nombre,
 				"templ":    "login",
 			})
-		} else if len(eventosSismicos) == 0 {
-			inicio(c)
-		} else {
-			cardEventosSismicos := make([]object.ESCard, len(eventosSismicos))
-			fmt.Println("lista eventos sismicos - Id: " + c.PostForm("filter-list"))
-			for i, evento := range eventosSismicos {
-				t1 := evento.GetFechaHoraOcurrencia()
-				diff := time.Now().Sub(t1)
-				if diff.Minutes() >= 5 && (evento.GetEstadoActual() == estados[1] || evento.GetEstadoActual() == estados[2]) {
-					evento.SetEstadoActual(estados[2], sesionActual) // pendiente revision
-				}
-				cardEventosSismicos[i] = evento.GetCardEventoSismico()
-			}
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"title":              "Listado de Eventos Sismicos",
-				"cardsEventoSismico": cardEventosSismicos,
-				"empleado":           sesionActual.Nombre,
-				"templ":              "list-es",
-			})
+			return
 		}
+		if len(eventosSismicos) == 0 {
+			inicio(c)
+			return
+		}
+		filtro := c.PostForm("filter-list")
+		fmt.Println("filtro: " + filtro)
+
+		// cardEventosSismicos := make([]object.ESCard, len(eventosSismicos))
+		cardEventosSismicos := []object.ESCard{}
+
+		for _, evento := range eventosSismicos {
+
+			t1 := evento.GetFechaHoraOcurrencia()
+			diff := time.Since(t1)
+			if diff.Minutes() >= 5 && (evento.GetEstadoActual() == estados[1] || evento.GetEstadoActual() == estados[2]) {
+				evento.SetEstadoActual(estados[2], sesionActual) // pendiente revision
+			}
+			if filtro == "all" {
+				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
+			} else if filtro == evento.GetEstadoActual().NombreEstado {
+				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
+			}
+		}
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title":              "Listado de Eventos Sismicos",
+			"cardsEventoSismico": cardEventosSismicos,
+			"empleado":           sesionActual.Nombre,
+			"templ":              "list-es",
+			"filtroEstado":       filtro,
+		})
+
 	})
 
 	// Revision manual.
@@ -185,6 +201,7 @@ func main() {
 		fmt.Println("accion: " + accion)
 		idString := c.PostForm("index")
 		id, _ := strconv.Atoi(idString)
+
 		if sesionActual.Nombre == "" {
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"empleado": sesionActual.Nombre,
@@ -198,14 +215,60 @@ func main() {
 		}
 		if accion == "notificar" {
 			eventosSismicos[id].SetEstadoActual(estados[7], sesionActual) //Notificado, estado: pendiente de cierre
-			fmt.Println("Evento sismico notificado: " + c.PostForm("index"))
+			fmt.Println("Evento sismico notificado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL": "/list-es",
+				"targetURL":  "/list-es",
+				"filterList": "all",
 			})
-
+			return
+		}
+		if accion == "cerrar" {
+			eventosSismicos[id].SetEstadoActual(estados[8], sesionActual) // Estado: cerrado
+			fmt.Println("Evento sismico cerrado: " + idString)
+			c.HTML(http.StatusOK, "auto-post.html", gin.H{
+				"targetURL":  "/list-es",
+				"filterList": "all",
+			})
+			return
+		}
+		if accion == "anular" {
+			eventosSismicos[id].SetEstadoActual(estados[9], sesionActual) //Estado: sin revision
+			fmt.Println("Evento sismico anulado: " + idString)
+			c.HTML(http.StatusOK, "auto-post.html", gin.H{
+				"targetURL":  "/list-es",
+				"filterList": "all",
+			})
+			return
+		}
+		if accion == "rechazado" {
+			eventosSismicos[id].SetEstadoActual(estados[4], sesionActual)
+			fmt.Println("Evento sismico rechazado: " + idString)
+			c.HTML(http.StatusOK, "auto-post.html", gin.H{
+				"targetURL":  "/list-es",
+				"filterList": "all",
+			})
+			return
+		}
+		if accion == "derivado" {
+			eventosSismicos[id].SetEstadoActual(estados[5], sesionActual)
+			fmt.Println("Evento sismico derivado: " + idString)
+			c.HTML(http.StatusOK, "auto-post.html", gin.H{
+				"targetURL":  "/list-es",
+				"filterList": "all",
+			})
+			return
+		}
+		if accion == "aceptado" {
+			eventosSismicos[id].SetEstadoActual(estados[6], sesionActual)
+			fmt.Println("Evento sismico aceptado: " + idString)
+			c.HTML(http.StatusOK, "auto-post.html", gin.H{
+				"targetURL":  "/list-es",
+				"filterList": "all",
+			})
 			return
 		}
 		cardEventoSismico := eventosSismicos[id].GetCardEventoSismico()
+
 		if eventosSismicos[id].GetEstadoActual() == estados[1] || eventosSismicos[id].GetEstadoActual() == estados[2] {
 			eventosSismicos[id].SetEstadoActual(estados[3], sesionActual) //bloqueado
 		}
@@ -217,13 +280,15 @@ func main() {
 			"alcanceSismo":      alcanceSismo,
 			"empleado":          sesionActual.Nombre,
 			"templ":             "review-es",
+			"index":             idString,
 		})
 	})
 
+	openBrowser("http://localhost:8080/inicio")
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
 }
 
-func generarEventoSismicoAleatorio(tipo string) object.EventoSismico {
+func generarEventoSismicoAleatorio(tipo string, id int) object.EventoSismico {
 
 	var magnitudMaxima int
 	var magnitudMinima int
@@ -253,7 +318,7 @@ func generarEventoSismicoAleatorio(tipo string) object.EventoSismico {
 		}
 	}
 	// if tipo == "aleatorio" {	}
-	return *object.NewEventoSismico(fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
+	return *object.NewEventoSismico(id, fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
 }
 
 func randomInt(max int) int {
@@ -266,6 +331,21 @@ func floatAleatorio(limite int) float64 {
 
 	num := float64(rand.Intn(limite)) + rand.Float64()
 	return num
+}
+
+func openBrowser(url string) {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	case "linux":
+		cmd = exec.Command("xdg-open", url)
+	case "darwin":
+		cmd = exec.Command("open", url)
+	}
+
+	cmd.Start()
 }
 
 // eq (equal) → {{if eq .Estado "activo"}}

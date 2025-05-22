@@ -6,6 +6,7 @@ import (
 )
 
 type EventoSismico struct {
+	id                  int
 	FechaHoraFin        time.Time
 	fechaHoraOcurrencia time.Time
 	latitudEpicentro    float64
@@ -21,6 +22,7 @@ type EventoSismico struct {
 }
 
 func NewEventoSismico(
+	id int,
 	fechaHoraOcurrencia time.Time,
 	latitudEpicentro float64,
 	longitudEpicentro float64,
@@ -39,6 +41,7 @@ func NewEventoSismico(
 	var estado []CambioEstado
 	estado = append(estado, NewCambioEstado(estadoInicial, analistaSupervisor))
 	return &EventoSismico{
+		id:                  id,
 		fechaHoraOcurrencia: fechaHoraOcurrencia,
 		latitudEpicentro:    latitudEpicentro,
 		longitudEpicentro:   longitudEpicentro,
@@ -127,6 +130,8 @@ func (e *EventoSismico) GetCardEventoSismico() ESCard {
 	}
 
 	cardEventoSismico := ESCard{
+		// Id:                         strconv.Itoa(e.id),
+		Id:                         (e.id),
 		FechaHoraOcurrencia:        e.fechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
 		LatitudEpicentro:           strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64),
 		LongitudEpicentro:          strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64),
@@ -144,6 +149,7 @@ func (e *EventoSismico) GetCardEventoSismico() ESCard {
 }
 
 type ESCard struct {
+	Id                         int
 	FechaHoraFin               string
 	FechaHoraOcurrencia        string
 	LatitudEpicentro           string

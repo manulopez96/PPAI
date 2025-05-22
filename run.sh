@@ -32,11 +32,11 @@ go mod tidy
 # firefox --kiosk "http://localhost:8080/" & disown
 
 
-go build -o ./ppai ./cmd/main.go
-# ./ppai 
+GOOS=windows GOARCH=amd64 go build -o PPAI.exe ./cmd/main.go
+GOOS=linux GOARCH=amd64 go build -o PPAI ./cmd/main.go
+
 go run ./cmd/main.go
                                                                                                                                                                                             
 # pkill firefox
 # pkill -f "localhost:8080"
 
-# GOOS=windows GOARCH=amd64 go build -o main.exe ./cmd/main.go

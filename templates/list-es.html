@@ -1,11 +1,11 @@
 {{define "list-es"}}
-<div class="card p-5 m-auto shadow">
+<div class="card p-2 m-auto mx-0 shadow">
   <div class="row">
     <div class="col-4 overflow-auto" style="height: 80vh">
       <div id="list" class="list-group shadow-sm">
         {{ range $index, $eventoSismico := .cardsEventoSismico }}
         <a class="list-group-item list-group-item-action" href="#{{$index}}"
-          >Evento sísmico: {{ add $index 1}}</a
+          >Evento sísmico: {{ add $eventoSismico.Id 1}}</a
         >
         {{end}}
       </div>
@@ -22,7 +22,9 @@
         {{ range $index, $eventoSismico := .cardsEventoSismico }}
         <div id="{{$index}}" class="card mb-5 m-2 shadow-sm" style="width: 95%">
           <div class="card-header pt-3">
-            <h4 class="card-title">Evento sísmico: {{ add $index 1}}</h4>
+            <h4 class="card-title">
+              Evento sísmico: {{ add $eventoSismico.Id 1}}
+            </h4>
           </div>
           <div class="card-body">
             <ul class="list-group list-group-flush list-unstyled">
@@ -70,8 +72,8 @@
             </ul>
           </div>
           <ul class="list-group list-group-flush">
+            {{ range $Estado := $eventoSismico.Estado }}
             <div class="card-body">
-              {{ range $Estado := $eventoSismico.Estado }}
               <ul class="list-group list-group-flush list-unstyled">
                 <li>
                   <strong>Inicio del estado:</strong>
@@ -90,8 +92,8 @@
                   {{ $Estado.ResponsableInspeccion }}
                 </li>
               </ul>
-              {{ end }}
             </div>
+            {{ end }}
           </ul>
           <div class="card-body">
             <form action="/review-es" method="POST">
@@ -101,45 +103,55 @@
                 id="index"
                 name="index"
                 required
-                value="{{$index}}"
+                value="{{$eventoSismico.Id}}"
               />
-              {{ if eq $eventoSismico.EstadoActual "Auto Confirmado"}}
               <input type="hidden" id="accion" name="accion" value="" />
+              {{ if or (eq $eventoSismico.EstadoActual "Auto Confirmado") (eq
+              $eventoSismico.EstadoActual "Aceptado") }}
               <button
-                type="submit"
+                type="button"
                 class="btn btn-success m-2"
-                onclick="setAccion('notificar')"
+                onclick="submitConAccion(this.form, 'notificar')"
               >
                 Notificar
               </button>
               {{else if eq $eventoSismico.EstadoActual "Pendiente de revision"}}
               <button
-                type="submit"
+                type="button"
                 class="btn btn-primary"
-                onclick="setAccion('revisar')"
+                onclick="submitConAccion(this.form,'revisar')"
               >
                 Revisión
               </button>
               <button
-                type="submit"
+                type="button"
                 class="btn btn-danger"
-                onclick="setAccion('anular')"
+                onclick="submitConAccion(this.form,'anular')"
               >
                 Anular
               </button>
               {{else if eq $eventoSismico.EstadoActual "Pendiente de cierre"}}
               <button
-                type="submit"
+                type="button"
                 class="btn btn-danger"
-                onclick="setAccion('cerrar')"
+                onclick="submitConAccion(this.form,'cerrar')"
               >
                 Cerrar
               </button>
-              {{else}}
+              {{else if or (eq $eventoSismico.EstadoActual "Auto Detectado") (eq
+              $eventoSismico.EstadoActual "Derivado") }}
               <button
-                type="submit"
+                type="button"
                 class="btn btn-primary"
-                onclick="setAccion('revisar')"
+                onclick="submitConAccion(this.form,'revisar')"
+              >
+                Revisión
+              </button>
+              {{else if and (eq $eventoSismico.EstadoActual "Bloqueado")}}
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="submitConAccion(this.form,'revisar')"
               >
                 Revisión
               </button>
@@ -153,8 +165,9 @@
   </div>
 </div>
 <script>
-  function setAccion(valor) {
-    document.getElementById("accion").value = valor;
+  function submitConAccion(form, accion) {
+    form.querySelector("#accion").value = accion;
+    form.submit();
   }
 </script>
 {{end}}

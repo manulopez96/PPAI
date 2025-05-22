@@ -37,6 +37,7 @@
         id="latitud-epicentro"
         name="latitud-epicentro"
         value="{{.cardEventoSismico.LatitudEpicentro}}"
+        disabled
       />
     </div>
     <div class="mb-3 p-2 col-4">
@@ -49,6 +50,7 @@
         id="longitud-epicentro"
         name="longitud-epicentro"
         value="{{.cardEventoSismico.LongitudEpicentro}}"
+        disabled
       />
     </div>
     <div class="mb-3 p-2 col-4">
@@ -59,6 +61,7 @@
         id="hipocentro"
         name="hipocentro"
         value="{{.cardEventoSismico.Hipocentro}}"
+        disabled
       />
     </div>
     <div class="mb-3 p-2 col-4">
@@ -69,6 +72,7 @@
         id="valor-magnitud"
         name="valor-magnitud"
         value="{{.cardEventoSismico.ValorMagnitud}}"
+        required
       />
     </div>
     <div class="mb-3 p-2 col-4">
@@ -93,7 +97,7 @@
     </div>
     <div class="mb-3 p-2 col-4">
       <label for="origen" class="form-label">Origen</label>
-      <select id="origen" name="origen" class="form-select">
+      <select id="origen" name="origen" class="form-select" required>
         {{ range $index, $o := .origenGeneracion }} {{ if eq $o.Nombre
         $.cardEventoSismico.OrigenDeGeneracion }}
         <option value="{{$o.Nombre}}" selected>{{ $o.Nombre }}</option>
@@ -104,7 +108,7 @@
     </div>
     <div class="mb-3 p-2 col-4">
       <label for="alcance" class="form-label">Alcance del sismo</label>
-      <select id="alcance" name="alcance" class="form-select">
+      <select id="alcance" name="alcance" class="form-select" required>
         {{ range $index, $a := .alcanceSismo }} {{ if eq $a.Nombre
         $.cardEventoSismico.AlcanceSismo }}
         <option value="{{$a.Nombre}}" selected>{{ $a.Nombre }}</option>
@@ -125,31 +129,74 @@
     </div>
   </div>
 
-  <div class="my-5 p-2 d-flex">
+  <div class="my-1 p-2 d-flex">
     <input type="hidden" id="accion" name="accion" value="" />
     <button
       type="submit"
       class="btn btn-success m-2"
-      onclick="setAccion('aceptado')"
+      onclick="submitConAccion(this.form,'aceptado')"
     >
       Aceptar
     </button>
+    {{if ne .cardEventoSismico.EstadoActual "Derivado"}}
     <button
       type="submit"
       class="btn btn-primary m-2"
-      onclick="setAccion('derivado')"
+      onclick="submitConAccion(this.form,'derivado')"
     >
       Derivar
     </button>
+    {{end}}
     <button
       type="submit"
       class="btn btn-danger m-2"
-      onclick="setAccion('rechazado')"
+      onclick="submitConAccion(this.form,'rechazado')"
     >
       Rechazar
     </button>
   </div>
+  <input
+    type="text"
+    class="form-control d-none"
+    id="index"
+    name="index"
+    required
+    value="{{.cardEventoSismico.Id}}"
+  />
 </form>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="modal"
+  tabindex="-1"
+  aria-labelledby="modalLabel"
+  aria-hidden="false"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="modalLabel">Mapa</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Desea visualizar en un mapa el evento sísmico y las estaciones
+        sismológicas involucradas
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          No
+        </button>
+        <button type="button" class="btn btn-primary">Si</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div
@@ -169,31 +216,23 @@
         aria-label="Close"
       ></button>
     </div>
-    <div class="toast-body">Enviando..</div>
+    <div class="toast-body" id="toastBody">Enviando..</div>
   </div>
 </div>
-
-<!-- 
-<div class="mb-3 d-none">
-  <label for="InputEmail1" class="form-label">Email address</label>
-  <input
-    type="email"
-    class="form-control"
-    id="InputEmail1"
-    aria-describedby="emailHelp"
-  />
-  <div id="emailHelp" class="form-text">
-    We'll never share your email with anyone else.
-  </div>
-</div>
-<div class="mb-3 form-check d-none">
-  <input type="checkbox" class="form-check-input" id="Check1" />
-  <label class="form-check-label" for="Check1">Check me out</label>
-</div> 
--->
 
 <script>
+  function submitConAccion(form, accion) {
+    form.querySelector("#accion").value = accion;
+    document.getElementById("toastBody").innerText = "Evento sismico " + accion;
+    setTimeout(function () {
+      form.submit();
+    }, 1000);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    var myModal = new bootstrap.Modal(document.getElementById("modal"));
+    myModal.show();
+
     const form = document.getElementById("form-review");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -204,9 +243,6 @@
       toastBootstrap.show();
     });
   });
-  function setAccion(valor) {
-    document.getElementById("accion").value = valor;
-  }
 </script>
 
 {{end}}

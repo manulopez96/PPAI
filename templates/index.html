@@ -159,15 +159,130 @@
                 <li>
                   <form action="/list-es" method="POST">
                     <input
-                      type="text"
-                      class="form-control d-none"
+                      type="hidden"
                       id="filter-list"
                       name="filter-list"
-                      required
                       value="all"
                     />
                     <button type="submit" class="btn dropdown-item">
                       Lista de eventos sismicos
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Auto Detectado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Auto Detectados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Auto Confirmado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Auto Confirmados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Pendiente de revision"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Pendientes de revision
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Derivado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Derivados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Aceptado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Aceptados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Rechazado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Rechazados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Pendiente de cierre"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Pendientes de cierre
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Cerrado"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Cerrados
+                    </button>
+                  </form>
+                </li>
+                <li>
+                  <form action="/list-es" method="POST">
+                    <input
+                      type="hidden"
+                      id="filter-list"
+                      name="filter-list"
+                      value="Sin revision"
+                    />
+                    <button type="submit" class="btn dropdown-item">
+                      Sin revision
                     </button>
                   </form>
                 </li>
@@ -189,15 +304,14 @@
         </div>
       </div>
     </nav>
-     <div class="container mt-4 pt-4">
-        <div class="col-12 mt-5">
-              {{ if eq .templ "formulario" }} {{ template "formulario" . }} {{ else if eq
-    .templ "login" }} {{ template "login" . }} {{ else if eq .templ "principal"
-    }} {{ template "principal" . }} {{ else if eq .templ "sim-es-a" }} {{
-    template "sim-es-a" . }} {{ else if eq .templ "list-es" }} {{ template
-    "list-es" . }} {{ else if eq .templ "review-es" }} {{ template "review-es" .
-    }} {{ end }}
-        </div>
-  
+    <div class="mt-4 pt-4 mx-2">
+      <div class="mt-5">
+        {{ if eq .templ "login" }} {{ template "login" . }} {{ else if eq .templ
+        "principal" }} {{ template "principal" . }} {{ else if eq .templ
+        "sim-es-a" }} {{ template "sim-es-a" . }} {{ else if eq .templ "list-es"
+        }} {{ template "list-es" . }} {{ else if eq .templ "review-es" }} {{
+        template "review-es" . }} {{ end }}
+      </div>
+    </div>
   </body>
 </html>
