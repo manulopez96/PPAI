@@ -45,7 +45,7 @@
             </li>
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle active"
+                class="nav-link dropdown-toggle "
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -84,7 +84,7 @@
             {{if ne .empleado ""}}
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle active"
+                class="nav-link dropdown-toggle"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -147,7 +147,7 @@
             {{end}}
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle active"
+                class="nav-link dropdown-toggle"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -287,6 +287,19 @@
                   </form>
                 </li>
               </ul>
+            </li>
+            <li class="nav-item nav-link active">
+              <form action="/list-es" method="POST">
+                <input
+                  type="hidden"
+                  id="filter-list"
+                  name="filter-list"
+                  value="Registrar resultado de revisión manual"
+                />
+                <button type="submit" class="btn dropdown-item">
+                  Registrar resultado de revisión manual
+                </button>
+              </form>
             </li>
           </ul>
 

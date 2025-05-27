@@ -1,0 +1,141 @@
+package gestor
+
+import (
+	"math/rand"
+	"ppai/internal/modelo"
+	"time"
+)
+
+type GestorEventosSismicos struct {
+	Eventos      []*modelo.EventoSismico
+	SesionActual *modelo.Empleado
+}
+
+func NewGestorEventos() *GestorEventosSismicos {
+	return &GestorEventosSismicos{
+		Eventos: make([]*modelo.EventoSismico, 0),
+	}
+}
+func (g *GestorEventosSismicos) SetSesionActual(sesion *modelo.Empleado) {
+	g.SesionActual = sesion
+}
+func (g *GestorEventosSismicos) CerrarSesionActual() {
+	g.SesionActual = &modelo.Empleado{}
+}
+
+func (g *GestorEventosSismicos) CrearEvento(id int, fecha time.Time, lat, lon, hipo, magn float64, emp modelo.Empleado, clas modelo.ClasificacionSismo, origen modelo.OrigenDeGeneracion, alcance modelo.AlcanceSismo) {
+	evento := modelo.NewEventoSismico(id, fecha, lat, lon, hipo, magn, emp, clas, origen, alcance)
+	g.Eventos = append(g.Eventos, evento)
+}
+
+func (g *GestorEventosSismicos) GetEventos() []*modelo.EventoSismico {
+	return g.Eventos
+}
+
+func (g *GestorEventosSismicos) GetCantidadEventos() int {
+	return len(g.Eventos)
+}
+
+func (g *GestorEventosSismicos) GetUltimoEvento() *modelo.EventoSismico {
+	if len(g.Eventos) == 0 {
+		return nil
+	}
+	return g.Eventos[len(g.Eventos)-1]
+}
+
+func (g *GestorEventosSismicos) GetEventoPorID(id int) *modelo.EventoSismico {
+	for _, evento := range g.Eventos {
+		if evento.GetId() == id {
+			return evento
+		}
+	}
+	return nil
+}
+func (g *GestorEventosSismicos) GetCardEventosSismicos(estado string) []modelo.ESCard {
+	cardEventosSismicos := []modelo.ESCard{}
+
+	for _, evento := range g.Eventos {
+
+		// t1 := evento.GetFechaHoraOcurrencia()
+		// diff := time.Since(t1)
+		// if diff.Minutes() >= 5 && (evento.GetEstadoActual() == estados[1] || evento.GetEstadoActual() == estados[2]) {
+		// 	evento.SetEstadoActual(estados[2], sesionActual) // pendiente revision
+		// }
+
+		if estado == "all" {
+			cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
+		} else if estado == "Registrar resultado de revisión manual" {
+			if evento.EsAutoDetectado() {
+				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
+			}
+		} else if estado == evento.GetEstadoActual().NombreEstado {
+			cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
+		}
+	}
+	return cardEventosSismicos
+}
+
+func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) modelo.EventoSismico {
+
+	clasificaciones := []modelo.ClasificacionSismo{}
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(0, 70, "Superficial"))
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(70, 300, "Intermedio"))
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(300, 700, "Profundo"))
+
+	origenDeGeneracion := []modelo.OrigenDeGeneracion{
+		modelo.NewOrigenDeGeneracion("Tectonico", "Movimiento de placas tectonicas"),
+		modelo.NewOrigenDeGeneracion("Volcanico", "Actividad volcanica"),
+		modelo.NewOrigenDeGeneracion("Colapso", "Colapso de cavernas o minas"),
+		modelo.NewOrigenDeGeneracion("Artificial", "Actividad humana"),
+		modelo.NewOrigenDeGeneracion("Desconocido", "Origen desconocido"),
+	}
+
+	alcanceSismo := []modelo.AlcanceSismo{
+		modelo.NewAlcanceSismo("Sismo local", "Hasta 100 km"),
+		modelo.NewAlcanceSismo("Sismo regional", "Hasta 1000 km"),
+		modelo.NewAlcanceSismo("Tele sismo", "Mas de 1000 km"),
+	}
+
+	var magnitudMaxima int
+	var magnitudMinima int
+	if tipo == "aleatorio" {
+		magnitudMaxima = 7
+		magnitudMinima = 0
+	} else if tipo == "mayor4.0" {
+		magnitudMaxima = 3
+		magnitudMinima = 4
+	} else if tipo == "menor4.0" {
+		magnitudMaxima = 3
+		magnitudMinima = 0
+	}
+	// Generar un evento sísmico aleatorio
+	fechaHoraOcurrencia := time.Now()
+	latitudEpicentro := floatAleatorio(2000)
+	longitudEpicentro := floatAleatorio(2000)
+	hipocentro := floatAleatorio(700)
+	valorMagnitud := floatAleatorio(magnitudMaxima) + float64(magnitudMinima)
+	analistaSupervisor := *g.SesionActual
+	clasificacion := clasificaciones[randomInt(len(clasificaciones))]
+	origen := origenDeGeneracion[randomInt(len(origenDeGeneracion))]
+	alcance := alcanceSismo[randomInt(len(alcanceSismo))]
+	for _, clasificacionItem := range clasificaciones {
+		if clasificacionItem.EsClasificacion(hipocentro) {
+			clasificacion = clasificacionItem
+		}
+	}
+
+	g.CrearEvento(g.GetCantidadEventos(), fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
+	return *g.GetUltimoEvento()
+}
+
+func randomInt(max int) int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(max)
+}
+
+func floatAleatorio(limite int) float64 {
+	rand.Seed(time.Now().UnixNano())
+
+	num := float64(rand.Intn(limite)) + rand.Float64()
+	return num
+}

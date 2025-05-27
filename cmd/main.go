@@ -1,68 +1,27 @@
 package main
 
 import (
-	"fmt"
-	"math/rand"
-	"net/http"
 	"os/exec"
 	"runtime"
 
-	// "ppai/config"
-	"ppai/internal/empleado"
-	"ppai/object"
-	"ppai/pkg/login"
-	"strconv"
+	"ppai/internal/gestor"
+	"ppai/internal/modelo"
+	"ppai/internal/pantalla"
+
 	"text/template"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func imprimirSesion(s object.Empleado) {
-	fmt.Println("Nombre:", s.Nombre)
-	fmt.Println("Apellido:", s.Apellido)
-	fmt.Println("Email:", s.Email)
-	fmt.Println("Telefono:", s.Telefono)
-}
-
-var sesionActual object.Empleado
-var clasificaciones []object.ClasificacionSismo
-var origenDeGeneracion []object.OrigenDeGeneracion
-var alcanceSismo []object.AlcanceSismo
-var estados []object.Estado
+var sesionActual modelo.Empleado
+var clasificaciones []modelo.ClasificacionSismo
+var origenDeGeneracion []modelo.OrigenDeGeneracion
+var alcanceSismo []modelo.AlcanceSismo
+var estados []modelo.Estado
 
 func main() {
-
 	r := gin.Default() // Crea una instancia del router con middlewares por defecto
-	// gin.SetMode(gin.ReleaseMode)
-
-	// Configuración de la base de datos
-	// config.ConnectDB()
-	// config.DB.AutoMigrate(&empleado.User{})
-
-	//--------------------------------------------------------------------------------------------------------------------
-	// Codigo Hardcodeado para pruebas
-	eventosSismicos := []object.EventoSismico{}
-
-	clasificaciones = []object.ClasificacionSismo{}
-	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(0, 70, "Superficial"))
-	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(70, 300, "Intermedio"))
-	clasificaciones = append(clasificaciones, object.NewClasificacionSismo(300, 700, "Profundo"))
-	origenDeGeneracion = []object.OrigenDeGeneracion{
-		object.NewOrigenDeGeneracion("Tectonico", "Movimiento de placas tectonicas"),
-		object.NewOrigenDeGeneracion("Volcanico", "Actividad volcanica"),
-		object.NewOrigenDeGeneracion("Colapso", "Colapso de cavernas o minas"),
-		object.NewOrigenDeGeneracion("Artificial", "Actividad humana"),
-		object.NewOrigenDeGeneracion("Desconocido", "Origen desconocido"),
-	}
-	alcanceSismo = []object.AlcanceSismo{
-		object.NewAlcanceSismo("Sismo local", "Hasta 100 km"),
-		object.NewAlcanceSismo("Sismo regional", "Hasta 1000 km"),
-		object.NewAlcanceSismo("Tele sismo", "Mas de 1000 km"),
-	}
-	estados = object.GetEstadosMuestra()
-
-	//--------------------------------------------------------------------------------------------------------------------
 
 	// funciones simples para las plantillas (para las funciones mas delicadas usare js)
 	r.SetFuncMap(template.FuncMap{
@@ -79,258 +38,68 @@ func main() {
 	// Cargar plantillas HTML
 	r.LoadHTMLGlob("templates/*")
 
-	//Cargando rutas para modificacion datos en DB
-	empleado.RegisterRoutes(r)
-	login.RegisterRoutes(r)
+	gestorEventos := gestor.NewGestorEventos()
+	pantallaEventos := pantalla.NewPantalla(gestorEventos)
 
-	// Index principal, donde se cargan todas las plantillas
-	inicio := func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title":    "Proyecto PPAI",
-			"templ":    "principal",
-			"sesion":   sesionActual,
-			"empleado": sesionActual.Nombre,
-		})
+	//--------------------------------------------------------------------------------------------------------------------
+	// Codigo Hardcodeado para pruebas
+
+	clasificaciones = []modelo.ClasificacionSismo{}
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(0, 70, "Superficial"))
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(70, 300, "Intermedio"))
+	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(300, 700, "Profundo"))
+	origenDeGeneracion = []modelo.OrigenDeGeneracion{
+		modelo.NewOrigenDeGeneracion("Tectonico", "Movimiento de placas tectonicas"),
+		modelo.NewOrigenDeGeneracion("Volcanico", "Actividad volcanica"),
+		modelo.NewOrigenDeGeneracion("Colapso", "Colapso de cavernas o minas"),
+		modelo.NewOrigenDeGeneracion("Artificial", "Actividad humana"),
+		modelo.NewOrigenDeGeneracion("Desconocido", "Origen desconocido"),
+	}
+	alcanceSismo = []modelo.AlcanceSismo{
+		modelo.NewAlcanceSismo("Sismo local", "Hasta 100 km"),
+		modelo.NewAlcanceSismo("Sismo regional", "Hasta 1000 km"),
+		modelo.NewAlcanceSismo("Tele sismo", "Mas de 1000 km"),
+	}
+	estados = modelo.GetEstadosMuestra()
+
+	sesionActual = modelo.Empleado{
+		Nombre:   "Juan",
+		Apellido: "Test",
+		Email:    "juan@Test.com",
+		Telefono: "123456789",
 	}
 
+	gestorEventos.SetSesionActual(&sesionActual)
+	gestorEventos.CrearEvento(0, time.Now().Add(-time.Hour*4), 900.0, 20.0, 50.0, 3.0, sesionActual, clasificaciones[0], origenDeGeneracion[0], alcanceSismo[0])
+	gestorEventos.CrearEvento(1, time.Now().Add(-time.Hour*2), 500.0, 350.0, 100.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
+	gestorEventos.CrearEvento(2, time.Now().Add(-time.Hour), 150.0, 125.0, 150.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
+
+	//--------------------------------------------------------------------------------------------------------------------
+	
 	// Ruta inicio
-	r.GET("/", inicio)
-	r.GET("/inicio", inicio)
+	r.GET("/", *pantallaEventos.Principal(gestorEventos))
+	r.GET("/inicio", *pantallaEventos.Principal(gestorEventos))
 
 	// Login template
-	r.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"empleado": sesionActual.Nombre,
-			"templ":    "login",
-		})
-	})
+	r.GET("/login", *pantallaEventos.Login(gestorEventos))
+
 	// Procesar login
-	r.POST("/login", func(c *gin.Context) {
-		sesionActual.Nombre = c.PostForm("nombre")
-		sesionActual.Apellido = c.PostForm("apellido")
-		sesionActual.Email = c.PostForm("email")
-		sesionActual.Telefono = c.PostForm("telefono")
-
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"mensaje":  "Formulario enviado correctamente",
-			"nombre":   sesionActual.Nombre,
-			"apellido": sesionActual.Apellido,
-			"email":    sesionActual.Email,
-			"telefono": sesionActual.Telefono,
-			"templ":    "login",
-		})
-		imprimirSesion(sesionActual)
-
-	})
+	r.POST("/login", *pantallaEventos.PostLogin(gestorEventos))
 
 	// Cerrar sesion
-	r.GET("/cerrarsesion", func(c *gin.Context) {
-		imprimirSesion(sesionActual)
-		sesionActual = object.Empleado{}
-		fmt.Println("Cerrando sesión")
-		imprimirSesion(sesionActual)
-	}, inicio)
+	r.GET("/cerrarsesion", *pantallaEventos.CerrarSesion(gestorEventos), *pantallaEventos.Principal(gestorEventos))
 
 	// Crear E.S.
-	r.POST("/sim-es-a", func(c *gin.Context) {
-		if sesionActual.Nombre == "" {
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"empleado": sesionActual.Nombre,
-				"templ":    "login",
-			})
-		} else {
-			id := len(eventosSismicos)
-			eventosSismicos = append(eventosSismicos, generarEventoSismicoAleatorio(c.PostForm("sim-tipo"), id))
-			fmt.Println("Evento generado:", eventosSismicos[len(eventosSismicos)-1].String())
-			ultimoEvento := eventosSismicos[len(eventosSismicos)-1]
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"title":         "Simulacion evento sismico aleatorio",
-				"cardTitle":     len(eventosSismicos),
-				"eventoSismico": ultimoEvento.GetCardEventoSismico(),
-				"empleado":      sesionActual.Nombre,
-				"templ":         "sim-es-a",
-			})
-		}
-	})
+	r.POST("/sim-es-a", *pantallaEventos.CrearEventosAleatorios(gestorEventos))
 
 	// Listar E.S.
-	r.POST("/list-es", func(c *gin.Context) {
-		if sesionActual.Nombre == "" {
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"empleado": sesionActual.Nombre,
-				"templ":    "login",
-			})
-			return
-		}
-		if len(eventosSismicos) == 0 {
-			inicio(c)
-			return
-		}
-		filtro := c.PostForm("filter-list")
-		fmt.Println("filtro: " + filtro)
-
-		// cardEventosSismicos := make([]object.ESCard, len(eventosSismicos))
-		cardEventosSismicos := []object.ESCard{}
-
-		for _, evento := range eventosSismicos {
-
-			t1 := evento.GetFechaHoraOcurrencia()
-			diff := time.Since(t1)
-			if diff.Minutes() >= 5 && (evento.GetEstadoActual() == estados[1] || evento.GetEstadoActual() == estados[2]) {
-				evento.SetEstadoActual(estados[2], sesionActual) // pendiente revision
-			}
-			if filtro == "all" {
-				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
-			} else if filtro == evento.GetEstadoActual().NombreEstado {
-				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
-			}
-		}
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title":              "Listado de Eventos Sismicos",
-			"cardsEventoSismico": cardEventosSismicos,
-			"empleado":           sesionActual.Nombre,
-			"templ":              "list-es",
-			"filtroEstado":       filtro,
-		})
-
-	})
+	r.POST("/list-es", *pantallaEventos.ListarEventos(gestorEventos))
 
 	// Revision manual.
-	r.POST("/review-es", func(c *gin.Context) {
-		accion := c.PostForm("accion")
-		fmt.Println("accion: " + accion)
-		idString := c.PostForm("index")
-		id, _ := strconv.Atoi(idString)
-
-		if sesionActual.Nombre == "" {
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"empleado": sesionActual.Nombre,
-				"templ":    "login",
-			})
-			return
-		}
-		if len(eventosSismicos) < id {
-			inicio(c)
-			return
-		}
-		if accion == "notificar" {
-			eventosSismicos[id].SetEstadoActual(estados[7], sesionActual) //Notificado, estado: pendiente de cierre
-			fmt.Println("Evento sismico notificado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		if accion == "cerrar" {
-			eventosSismicos[id].SetEstadoActual(estados[8], sesionActual) // Estado: cerrado
-			fmt.Println("Evento sismico cerrado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		if accion == "anular" {
-			eventosSismicos[id].SetEstadoActual(estados[9], sesionActual) //Estado: sin revision
-			fmt.Println("Evento sismico anulado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		if accion == "rechazado" {
-			eventosSismicos[id].SetEstadoActual(estados[4], sesionActual)
-			fmt.Println("Evento sismico rechazado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		if accion == "derivado" {
-			eventosSismicos[id].SetEstadoActual(estados[5], sesionActual)
-			fmt.Println("Evento sismico derivado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		if accion == "aceptado" {
-			eventosSismicos[id].SetEstadoActual(estados[6], sesionActual)
-			fmt.Println("Evento sismico aceptado: " + idString)
-			c.HTML(http.StatusOK, "auto-post.html", gin.H{
-				"targetURL":  "/list-es",
-				"filterList": "all",
-			})
-			return
-		}
-		cardEventoSismico := eventosSismicos[id].GetCardEventoSismico()
-
-		if eventosSismicos[id].GetEstadoActual() == estados[1] || eventosSismicos[id].GetEstadoActual() == estados[2] {
-			eventosSismicos[id].SetEstadoActual(estados[3], sesionActual) //bloqueado
-		}
-		fmt.Println("Revision evento sismico: " + c.PostForm("index"))
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title":             "Revision de Evento Sismico ",
-			"cardEventoSismico": cardEventoSismico,
-			"origenGeneracion":  origenDeGeneracion,
-			"alcanceSismo":      alcanceSismo,
-			"empleado":          sesionActual.Nombre,
-			"templ":             "review-es",
-			"index":             idString,
-		})
-	})
+	r.POST("/review-es", *pantallaEventos.RevisionManual(gestorEventos))
 
 	openBrowser("http://localhost:8080/inicio")
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
-}
-
-func generarEventoSismicoAleatorio(tipo string, id int) object.EventoSismico {
-
-	var magnitudMaxima int
-	var magnitudMinima int
-	if tipo == "aleatorio" {
-		magnitudMaxima = 7
-		magnitudMinima = 0
-	} else if tipo == "mayor4.0" {
-		magnitudMaxima = 3
-		magnitudMinima = 4
-	} else if tipo == "menor4.0" {
-		magnitudMaxima = 3
-		magnitudMinima = 0
-	}
-	// Generar un evento sísmico aleatorio
-	fechaHoraOcurrencia := time.Now()
-	latitudEpicentro := floatAleatorio(2000)
-	longitudEpicentro := floatAleatorio(2000)
-	hipocentro := floatAleatorio(700)
-	valorMagnitud := floatAleatorio(magnitudMaxima) + float64(magnitudMinima)
-	analistaSupervisor := sesionActual
-	clasificacion := clasificaciones[0]
-	origen := origenDeGeneracion[randomInt(len(origenDeGeneracion))]
-	alcance := alcanceSismo[randomInt(len(alcanceSismo))]
-	for _, clasificacionItem := range clasificaciones {
-		if clasificacionItem.EsClasificacion(hipocentro) {
-			clasificacion = clasificacionItem
-		}
-	}
-	// if tipo == "aleatorio" {	}
-	return *object.NewEventoSismico(id, fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
-}
-
-func randomInt(max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max)
-}
-
-func floatAleatorio(limite int) float64 {
-	rand.Seed(time.Now().UnixNano())
-
-	num := float64(rand.Intn(limite)) + rand.Float64()
-	return num
 }
 
 func openBrowser(url string) {
