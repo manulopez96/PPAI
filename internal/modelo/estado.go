@@ -37,38 +37,24 @@ func AutoDetectado() Estado {
 func PendienteDeRevision() Estado {
 	return NewEstado("Evento sismico", "Pendiente de revision")
 }
-func Bloqueado() Estado {
+func BloquearEvento() Estado {
 	return NewEstado("Evento sismico", "Bloqueado")
 }
-func Rechazado() Estado {
+func RechazarEvento() Estado {
 	return NewEstado("Evento sismico", "Rechazado")
 }
-func Derivado() Estado {
+func DerivarEvento() Estado {
 	return NewEstado("Evento sismico", "Derivado")
 }
-func Aceptado() Estado {
+func AceptarEvento() Estado {
 	return NewEstado("Evento sismico", "Aceptado")
 }
 func PendienteDeCierre() Estado {
 	return NewEstado("Evento sismico", "Pendiente de cierre")
 }
-func Cerrado() Estado {
+func CerrarEvento() Estado {
 	return NewEstado("Evento sismico", "Cerrado")
 }
 func SinRevision() Estado {
 	return NewEstado("Evento sismico", "Sin revision")
-}
-func GetEstadosMuestra() []Estado {
-	return []Estado{
-		NewEstado("Evento sismico", "Auto Confirmado"),       // [0]
-		NewEstado("Evento sismico", "Auto Detectado"),        // [1]
-		NewEstado("Evento sismico", "Pendiente de revision"), // [2]
-		NewEstado("Evento sismico", "Bloqueado"),             // [3]
-		NewEstado("Evento sismico", "Rechazado"),             // [4]
-		NewEstado("Evento sismico", "Derivado"),              // [5]
-		NewEstado("Evento sismico", "Aceptado"),              // [6]
-		NewEstado("Evento sismico", "Pendiente de cierre"),   // [7]
-		NewEstado("Evento sismico", "Cerrado"),               // [8]
-		NewEstado("Evento sismico", "Sin revision"),          // [9]
-	}
 }

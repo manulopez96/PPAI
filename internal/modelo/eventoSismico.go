@@ -19,6 +19,7 @@ type EventoSismico struct {
 	alcanceSismo        AlcanceSismo
 	estadoActual        Estado
 	estado              []CambioEstado
+	SerieTemporal       []SerieTemporal
 }
 
 func NewEventoSismico(
@@ -33,10 +34,9 @@ func NewEventoSismico(
 	origenDeGeneracion OrigenDeGeneracion,
 	alcanceSismo AlcanceSismo,
 ) *EventoSismico {
-	estados := GetEstadosMuestra()
-	estadoInicial := estados[1]
+	estadoInicial := AutoDetectado()
 	if valorMagnitud >= 4.0 {
-		estadoInicial = estados[0]
+		estadoInicial = AutoConfirmado()
 	}
 	var estado []CambioEstado
 	estado = append(estado, NewCambioEstado(estadoInicial, analistaSupervisor, fechaHoraOcurrencia))
@@ -121,7 +121,7 @@ func (e *EventoSismico) GetCambioDeEstado() []CambioEstado {
 	return e.estado
 }
 
-func (e *EventoSismico) EsAutoDetectado() bool {
+func (e *EventoSismico) SosAutoDetectado() bool {
 	return e.estadoActual.EsEstado("Auto Detectado")
 }
 

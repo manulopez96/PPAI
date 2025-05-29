@@ -7,8 +7,9 @@ import (
 )
 
 type GestorEventosSismicos struct {
-	Eventos      []*modelo.EventoSismico
 	SesionActual *modelo.Empleado
+	Eventos      []*modelo.EventoSismico
+	Sismografos  []*modelo.Sismografo
 }
 
 func NewGestorEventos() *GestorEventosSismicos {
@@ -42,6 +43,12 @@ func (g *GestorEventosSismicos) GetUltimoEvento() *modelo.EventoSismico {
 	}
 	return g.Eventos[len(g.Eventos)-1]
 }
+func (g *GestorEventosSismicos) ExisteSesionActiva() bool {
+	return g.SesionActual != nil && g.SesionActual.Nombre != ""
+}
+func (g *GestorEventosSismicos) ExistenEventos() bool {
+	return g.GetCantidadEventos() > 0
+}
 
 func (g *GestorEventosSismicos) GetEventoPorID(id int) *modelo.EventoSismico {
 	for _, evento := range g.Eventos {
@@ -65,7 +72,7 @@ func (g *GestorEventosSismicos) GetCardEventosSismicos(estado string) []modelo.E
 		if estado == "all" {
 			cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
 		} else if estado == "Registrar resultado de revisión manual" {
-			if evento.EsAutoDetectado() {
+			if evento.SosAutoDetectado() {
 				cardEventosSismicos = append(cardEventosSismicos, evento.GetCardEventoSismico())
 			}
 		} else if estado == evento.GetEstadoActual().NombreEstado {
@@ -73,6 +80,9 @@ func (g *GestorEventosSismicos) GetCardEventosSismicos(estado string) []modelo.E
 		}
 	}
 	return cardEventosSismicos
+}
+func (g *GestorEventosSismicos) AddSismografo(sismografo *modelo.Sismografo) {
+	g.Sismografos = append(g.Sismografos, sismografo)
 }
 
 func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) modelo.EventoSismico {
@@ -127,12 +137,10 @@ func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) model
 	g.CrearEvento(g.GetCantidadEventos(), fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
 	return *g.GetUltimoEvento()
 }
-
 func randomInt(max int) int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max)
 }
-
 func floatAleatorio(limite int) float64 {
 	rand.Seed(time.Now().UnixNano())
 
