@@ -76,18 +76,20 @@ func main() {
 		modelo.NewAlcanceSismo("Sismo regional", "Hasta 1000 km"),
 		modelo.NewAlcanceSismo("Tele sismo", "Mas de 1000 km"),
 	}
-
 	sesionActual = modelo.Empleado{
 		Nombre:   "Juan",
 		Apellido: "Test",
 		Email:    "juan@Test.com",
 		Telefono: "123456789",
 	}
+	evento1 := modelo.NewEventoSismico(0, time.Now().Add(-time.Hour*4), 900.0, 20.0, 50.0, 3.0, sesionActual, clasificaciones[0], origenDeGeneracion[0], alcanceSismo[0])
+	evento2 := modelo.NewEventoSismico(1, time.Now().Add(-time.Hour*2), 500.0, 350.0, 100.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
+	evento3 := modelo.NewEventoSismico(2, time.Now().Add(-time.Hour), 150.0, 125.0, 150.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
 
 	gestorEventos.SetSesionActual(&sesionActual)
-	gestorEventos.CrearEvento(0, time.Now().Add(-time.Hour*4), 900.0, 20.0, 50.0, 3.0, sesionActual, clasificaciones[0], origenDeGeneracion[0], alcanceSismo[0])
-	gestorEventos.CrearEvento(1, time.Now().Add(-time.Hour*2), 500.0, 350.0, 100.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
-	gestorEventos.CrearEvento(2, time.Now().Add(-time.Hour), 150.0, 125.0, 150.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
+	gestorEventos.AddEvento(evento1)
+	gestorEventos.AddEvento(evento2)
+	gestorEventos.AddEvento(evento3)
 	gestorEventos.AddSismografo(sismografo1)
 	gestorEventos.AddSismografo(sismografo2)
 

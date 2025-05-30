@@ -107,9 +107,8 @@ func (e *EventoSismico) GetId() int {
 	return e.id
 }
 
-func (e *EventoSismico) SetEstadoActual(estado Estado, responsable Empleado, t time.Time) {
+func (e *EventoSismico) SetEstadoActual(estado Estado, responsable Empleado, fin time.Time) {
 	i := len(e.estado) - 1
-	fin := t
 	e.estado[i].SetFechaHoraFin(&fin)
 	e.estado = append(e.estado, NewCambioEstado(estado, responsable, fin))
 	e.estadoActual = estado

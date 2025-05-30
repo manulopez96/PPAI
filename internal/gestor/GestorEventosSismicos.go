@@ -24,6 +24,9 @@ func (g *GestorEventosSismicos) CerrarSesionActual() {
 	g.SesionActual = &modelo.Empleado{}
 }
 
+func (g *GestorEventosSismicos) AddEvento(evento *modelo.EventoSismico) {
+	g.Eventos = append(g.Eventos, evento)
+}
 func (g *GestorEventosSismicos) CrearEvento(id int, fecha time.Time, lat, lon, hipo, magn float64, emp modelo.Empleado, clas modelo.ClasificacionSismo, origen modelo.OrigenDeGeneracion, alcance modelo.AlcanceSismo) {
 	evento := modelo.NewEventoSismico(id, fecha, lat, lon, hipo, magn, emp, clas, origen, alcance)
 	g.Eventos = append(g.Eventos, evento)
