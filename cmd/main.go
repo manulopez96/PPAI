@@ -85,6 +85,9 @@ func main() {
 	evento1 := modelo.NewEventoSismico(0, time.Now().Add(-time.Hour*4), 900.0, 20.0, 50.0, 3.0, sesionActual, clasificaciones[0], origenDeGeneracion[0], alcanceSismo[0])
 	evento2 := modelo.NewEventoSismico(1, time.Now().Add(-time.Hour*2), 500.0, 350.0, 100.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
 	evento3 := modelo.NewEventoSismico(2, time.Now().Add(-time.Hour), 150.0, 125.0, 150.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
+	evento1.AddSerieTemporal(serieTemporal1)
+	evento2.AddSerieTemporal(serieTemporal2)
+	evento3.AddSerieTemporal(serieTemporal2)
 
 	gestorEventos.SetSesionActual(&sesionActual)
 	gestorEventos.AddEvento(evento1)

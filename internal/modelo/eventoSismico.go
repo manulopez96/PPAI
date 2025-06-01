@@ -19,7 +19,7 @@ type EventoSismico struct {
 	alcanceSismo        AlcanceSismo
 	estadoActual        Estado
 	estado              []CambioEstado
-	SerieTemporal       []SerieTemporal
+	SerieTemporal       []*SerieTemporal
 }
 
 func NewEventoSismico(
@@ -34,9 +34,9 @@ func NewEventoSismico(
 	origenDeGeneracion OrigenDeGeneracion,
 	alcanceSismo AlcanceSismo,
 ) *EventoSismico {
-	estadoInicial := AutoDetectado()
+	estadoInicial := GetEstadoAutoDetectado()
 	if valorMagnitud >= 4.0 {
-		estadoInicial = AutoConfirmado()
+		estadoInicial = GetEstadoAutoConfirmado()
 	}
 	var estado []CambioEstado
 	estado = append(estado, NewCambioEstado(estadoInicial, analistaSupervisor, fechaHoraOcurrencia))
@@ -106,6 +106,12 @@ func (e *EventoSismico) GetAlcanseSismo() AlcanceSismo {
 func (e *EventoSismico) GetId() int {
 	return e.id
 }
+func (e *EventoSismico) GetSerieTemporal() []*SerieTemporal {
+	return e.SerieTemporal
+}
+func (e *EventoSismico) AddSerieTemporal(serie *SerieTemporal) {
+	e.SerieTemporal = append(e.SerieTemporal, serie)
+}
 
 func (e *EventoSismico) SetEstadoActual(estado Estado, responsable Empleado, fin time.Time) {
 	i := len(e.estado) - 1
@@ -128,7 +134,7 @@ func (e *EventoSismico) String() string {
 	return "\nEvento Sismico: " + e.fechaHoraOcurrencia.String() + "\nLatitud epicentro: " + strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64) + "\nLongitud epicentro:  " + strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64) + "\nHipocentro:  " + strconv.FormatFloat(e.hipocentro, 'f', 2, 64) + "\nAnalista supervisor: " + e.analistaSupervisor.Nombre + " " + e.analistaSupervisor.Apellido + "\nValor magnitud: " + strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64) + "\n"
 }
 
-func (e *EventoSismico) GetCardEventoSismico() ESCard {
+func (e *EventoSismico) GetDatos() ESCard {
 
 	var cardEstados []CECard
 	for _, cambioEstado := range e.estado {
@@ -175,14 +181,3 @@ func (e *EventoSismico) GetCalificacion(hipocentro float64, c ClasificacionSismo
 	return c.EsClasificacion(hipocentro)
 }
 
-// TODO: Implementar relacion magnitud
-// TODO: Implementar relacion serieTemporal
-
-// Fecha y hora de ocurrencia.
-// Hipocentro: el punto en la profundidad de la tierra desde donde se origina el sismo.
-// Clasificación: basada en la profundidad a la que se origina (superficial, intermedio, profundo).
-// Epicentro: la latitud y longitud geográfica en la superficie terrestre directamente encima del hipocentro. El sistema estima la localización (epicentro) a partir del procesamiento de datos sísmicos con Machine Learning.
-// Origen de generación: por ejemplo, sismo interplaca, volcánico, provocado por explosiones de minas, etc..
-// Alcance: la distancia epicentral entre el epicentro y el punto de observación (Estación Sismológica). Se clasifica como local, regional o telesismo.
-// Magnitud: un parámetro que caracteriza el tamaño y la energía liberada por un sismo. El sistema estima la magnitud mediante el procesamiento de datos sísmicos con Machine Learning. Si la magnitud estimada es mayor o igual a 4.0 en la escala Richter, el evento se registra como auto confirmado; si es menor, se registra como auto detectado. La Magnitud local, conocida como Magnitud Richter, es un tipo de magnitud utilizada.
-// El sistema utiliza un proceso automático basado en Machine Learning para fusionar datos de sismógrafos cercanos y estimar la localización (epicentro) y la magnitud del evento sísmico

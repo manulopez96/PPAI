@@ -28,33 +28,33 @@ func (e *Estado) EsEstado(estado string) bool {
 	return e.NombreEstado == estado
 }
 
-func AutoConfirmado() Estado {
+func GetEstadoAutoConfirmado() Estado {
 	return NewEstado("Evento sismico", "Auto Confirmado")
 }
-func AutoDetectado() Estado {
+func GetEstadoAutoDetectado() Estado {
 	return NewEstado("Evento sismico", "Auto Detectado")
 }
-func PendienteDeRevision() Estado {
+func GetEstadoPendienteDeRevision() Estado {
 	return NewEstado("Evento sismico", "Pendiente de revision")
 }
-func BloquearEvento() Estado {
+func GetEstadoBloqueado() Estado {
 	return NewEstado("Evento sismico", "Bloqueado")
 }
-func RechazarEvento() Estado {
+func GetEstadoRechazado() Estado {
 	return NewEstado("Evento sismico", "Rechazado")
 }
-func DerivarEvento() Estado {
+func GetEstadoDerivado() Estado {
 	return NewEstado("Evento sismico", "Derivado")
 }
-func AceptarEvento() Estado {
+func GetEstadoAceptado() Estado {
 	return NewEstado("Evento sismico", "Aceptado")
 }
-func PendienteDeCierre() Estado {
+func GetEstadoPendienteDeCierre() Estado {
 	return NewEstado("Evento sismico", "Pendiente de cierre")
 }
-func CerrarEvento() Estado {
+func GetEstadoCerrado() Estado {
 	return NewEstado("Evento sismico", "Cerrado")
 }
-func SinRevision() Estado {
+func GetEstadoSinRevision() Estado {
 	return NewEstado("Evento sismico", "Sin revision")
 }

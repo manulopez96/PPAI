@@ -96,7 +96,7 @@ func (p *Pantalla) OpcionCrearEventosAleatorios(gestor *gestor.GestorEventosSism
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":         "Simulacion evento sismico aleatorio",
 			"cardTitle":     gestor.GetCantidadEventos(),
-			"eventoSismico": gestor.GetUltimoEvento().GetCardEventoSismico(),
+			"eventoSismico": gestor.GetUltimoEvento().GetDatos(),
 			"empleado":      gestor.SesionActual.Nombre,
 			"templ":         "sim-es-a",
 		})
@@ -150,71 +150,82 @@ func (p *Pantalla) MostrarRevisionManual(gestor *gestor.GestorEventosSismicos) *
 			return
 		}
 		if accion == "notificar" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.PendienteDeCierre(), *gestor.SesionActual, time.Now()) // Notificado, estado: pendiente de cierre
+			gestor.GetEventoPorID(id).SetEstadoActual(modelo.GetEstadoPendienteDeCierre(), *gestor.SesionActual, time.Now()) // Notificado, estado: pendiente de cierre
 			fmt.Println("Evento sismico notificado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.PendienteDeCierre().NombreEstado,
+				"filterList": modelo.GetEstadoPendienteDeCierre().NombreEstado,
 			})
 			return
 		}
 		if accion == "cerrar" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.CerrarEvento(), *gestor.SesionActual, time.Now()) // Estado: cerrado
+			gestor.GetEventoPorID(id).SetEstadoActual(modelo.GetEstadoCerrado(), *gestor.SesionActual, time.Now()) // Estado: cerrado
 			fmt.Println("Evento sismico cerrado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.CerrarEvento().NombreEstado,
+				"filterList": modelo.GetEstadoCerrado().NombreEstado,
 			})
 			return
 		}
 		if accion == "anular" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.SinRevision(), *gestor.SesionActual, time.Now()) // Estado: Sin Revision
+			gestor.GetEventoPorID(id).SetEstadoActual(modelo.GetEstadoSinRevision(), *gestor.SesionActual, time.Now()) // Estado: Sin Revision
 			fmt.Println("Evento sismico anulado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.SinRevision().NombreEstado,
+				"filterList": modelo.GetEstadoSinRevision().NombreEstado,
 			})
 			return
 		}
 		if accion == "rechazado" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.RechazarEvento(), *gestor.SesionActual, time.Now()) // Estado: Rechazado
+			gestor.RechazarEventoPorID(id, *gestor.SesionActual, time.Now()) // Estado: Rechazado
 			fmt.Println("Evento sismico rechazado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.RechazarEvento().NombreEstado,
+				"filterList": modelo.GetEstadoRechazado().NombreEstado,
 			})
 			return
 		}
 		if accion == "derivado" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.DerivarEvento(), *gestor.SesionActual, time.Now()) // Estado: Derivado
+			gestor.GetEventoPorID(id).SetEstadoActual(modelo.GetEstadoDerivado(), *gestor.SesionActual, time.Now()) // Estado: Derivado
 			fmt.Println("Evento sismico derivado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.DerivarEvento().NombreEstado,
+				"filterList": modelo.GetEstadoDerivado().NombreEstado,
 			})
 			return
 		}
 		if accion == "aceptado" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.AceptarEvento(), *gestor.SesionActual, time.Now()) // Estado: Aceptado
+			gestor.GetEventoPorID(id).SetEstadoActual(modelo.GetEstadoAceptado(), *gestor.SesionActual, time.Now()) // Estado: Aceptado
 			fmt.Println("Evento sismico aceptado: " + idString)
 			c.HTML(http.StatusOK, "auto-post.html", gin.H{
 				"targetURL":  "/list-es",
-				"filterList": modelo.AceptarEvento().NombreEstado,
+				"filterList": modelo.GetEstadoAceptado().NombreEstado,
 			})
 			return
 		}
 		if accion == "revisar" {
-			gestor.GetEventoPorID(id).SetEstadoActual(modelo.BloquearEvento(), *gestor.SesionActual, time.Now()) // Estado: Bloqueado
+			gestor.BloquearEventoPorID(id, *gestor.SesionActual, time.Now()) // Estado: Bloqueado
 
 			fmt.Println("Revision evento sismico: " + c.PostForm("index"))
+
+			datosEventoSismico := gestor.BuscarDatosSismicosRegistrados(id)
+			datosSeriesTemporales := gestor.GetSeriesTemporales(id)
+			estacionSismologica := gestor.GetEstacionSismologica(datosSeriesTemporales[0])
+			gestor.LlamarCUGenerarSismograma()
+
+			fmt.Println("------------------------------------------------------------------------------------------------")
+			// fmt.Println("Estacion Sismologica: ", estacionSismologica.Nombre)
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"title":             "Revision de Evento Sismico ",
-				"cardEventoSismico": gestor.GetEventoPorID(id).GetCardEventoSismico(),
-				"origenGeneracion":  modelo.GetOrigenMuestra(),
-				"alcanceSismo":      modelo.GetAlcanceMuestra(),
-				"empleado":          gestor.SesionActual.Nombre,
-				"templ":             "review-es",
-				"index":             idString,
+				"title":               "Revision de Evento Sismico ",
+				"cardEventoSismico":   datosEventoSismico,
+				"seriesTemporales":    datosSeriesTemporales,
+				"estacionSismologica": estacionSismologica,
+				"origenGeneracion":    modelo.GetOrigenMuestra(),
+				"alcanceSismo":        modelo.GetAlcanceMuestra(),
+				"empleado":            gestor.SesionActual.Nombre,
+				"templ":               "review-es",
+				"index":               idString,
 			})
 		}
 	}

@@ -22,7 +22,7 @@ func NewSerieTemporal(condicion bool, fechaHoraInicioRegistroMuestras time.Time,
 func GenerarSerieTemporal(tipoVel, tipoFreq, tipoLong TipoDeDato, inicio time.Time) *SerieTemporal {
 	serie := NewSerieTemporal(false, inicio, inicio, 1)
 
-	// Simulamos 3 muestras separadas por 1 segundo
+	// generar
 	for i := 0; i < 3; i++ {
 		fecha := inicio.Add(time.Duration(i) * time.Second)
 		muestra := MuestraSismica{
