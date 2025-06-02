@@ -214,7 +214,7 @@ func (p *Pantalla) MostrarRevisionManual(gestor *gestor.GestorEventosSismicos) *
 			gestor.LlamarCUGenerarSismograma()
 
 			fmt.Println("------------------------------------------------------------------------------------------------")
-			// fmt.Println("Estacion Sismologica: ", estacionSismologica.Nombre)
+			fmt.Println("Estacion Sismologica: ", estacionSismologica)
 
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"title":               "Revision de Evento Sismico ",

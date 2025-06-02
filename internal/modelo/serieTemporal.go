@@ -10,6 +10,9 @@ type SerieTemporal struct {
 	MuestraSismica                  []MuestraSismica
 }
 
+var SerieTemporal1 *SerieTemporal
+var SerieTemporal2 *SerieTemporal
+
 func NewSerieTemporal(condicion bool, fechaHoraInicioRegistroMuestras time.Time, fechaHoraRegistro time.Time, frecuenciaMuestreo int) *SerieTemporal {
 	return &SerieTemporal{
 		CondicionAlarma:                 condicion,

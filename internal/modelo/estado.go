@@ -5,13 +5,19 @@ type Estado struct {
 	NombreEstado string
 }
 
-func NewEstado(ambito, nombre string) Estado {
-	return Estado{
+func NewEstado(ambito, nombre string) *Estado {
+	return &Estado{
 		ambito:       ambito,
 		NombreEstado: nombre,
 	}
 }
 
+func (e *Estado) EsAmbito(ambito string) bool {
+	return e.ambito == ambito
+}
+func (e *Estado) EsEstado(estado string) bool {
+	return e.NombreEstado == estado
+}
 func (e *Estado) SetNombre(nombre string) {
 	e.NombreEstado = nombre
 }
@@ -24,37 +30,34 @@ func (e *Estado) SetAmbito(ambito string) {
 func (e *Estado) GetAmbito() string {
 	return e.ambito
 }
-func (e *Estado) EsEstado(estado string) bool {
-	return e.NombreEstado == estado
-}
 
 func GetEstadoAutoConfirmado() Estado {
-	return NewEstado("Evento sismico", "Auto Confirmado")
+	return *NewEstado("Evento sismico", "Auto Confirmado")
 }
 func GetEstadoAutoDetectado() Estado {
-	return NewEstado("Evento sismico", "Auto Detectado")
+	return *NewEstado("Evento sismico", "Auto Detectado")
 }
 func GetEstadoPendienteDeRevision() Estado {
-	return NewEstado("Evento sismico", "Pendiente de revision")
+	return *NewEstado("Evento sismico", "Pendiente de revision")
 }
 func GetEstadoBloqueado() Estado {
-	return NewEstado("Evento sismico", "Bloqueado")
+	return *NewEstado("Evento sismico", "Bloqueado")
 }
 func GetEstadoRechazado() Estado {
-	return NewEstado("Evento sismico", "Rechazado")
+	return *NewEstado("Evento sismico", "Rechazado")
 }
 func GetEstadoDerivado() Estado {
-	return NewEstado("Evento sismico", "Derivado")
+	return *NewEstado("Evento sismico", "Derivado")
 }
 func GetEstadoAceptado() Estado {
-	return NewEstado("Evento sismico", "Aceptado")
+	return *NewEstado("Evento sismico", "Aceptado")
 }
 func GetEstadoPendienteDeCierre() Estado {
-	return NewEstado("Evento sismico", "Pendiente de cierre")
+	return *NewEstado("Evento sismico", "Pendiente de cierre")
 }
 func GetEstadoCerrado() Estado {
-	return NewEstado("Evento sismico", "Cerrado")
+	return *NewEstado("Evento sismico", "Cerrado")
 }
 func GetEstadoSinRevision() Estado {
-	return NewEstado("Evento sismico", "Sin revision")
+	return *NewEstado("Evento sismico", "Sin revision")
 }

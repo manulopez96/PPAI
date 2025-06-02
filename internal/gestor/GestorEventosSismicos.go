@@ -11,6 +11,7 @@ type GestorEventosSismicos struct {
 	SesionActual *modelo.Empleado
 	Eventos      []*modelo.EventoSismico
 	Sismografos  []*modelo.Sismografo
+	Estados      []*modelo.Estado
 }
 
 func NewGestorEventos() *GestorEventosSismicos {
@@ -75,19 +76,19 @@ func (g *GestorEventosSismicos) BuscarDatosSismicosRegistrados(id int) modelo.ES
 	return datos
 }
 func (g *GestorEventosSismicos) BloquearEventoPorID(id int, responsable modelo.Empleado, fin time.Time) {
-	g.Eventos[id].SetEstadoActual(modelo.GetEstadoBloqueado(), responsable, fin)
+	estado := g.GetEstado("Evento sismico", "Bloqueado")
+	g.Eventos[id].SetEstadoActual(*estado, responsable, fin)
 
 }
 func (g *GestorEventosSismicos) RechazarEventoPorID(id int, responsable modelo.Empleado, fin time.Time) {
-	g.Eventos[id].SetEstadoActual(modelo.GetEstadoRechazado(), responsable, fin)
+	estado := g.GetEstado("Evento sismico", "Rechazado")
+	g.Eventos[id].SetEstadoActual(*estado, responsable, fin)
 
 }
 func (g *GestorEventosSismicos) GetEstacionSismologica(serie *modelo.SerieTemporal) *modelo.EstacionSismologica {
 	for _, sismografo := range g.Sismografos {
-		for _, sismografoSerie := range sismografo.SerieTemporal {
-			if sismografoSerie == serie {
-				return sismografo.EstacionSismologica
-			}
+		if sismografo.ContieneSerieTemporal(serie) {
+			return sismografo.EstacionSismologica
 		}
 	}
 	return nil
@@ -122,6 +123,17 @@ func (g *GestorEventosSismicos) GetCardEventosSismicos(estado string) []modelo.E
 func (g *GestorEventosSismicos) AddSismografo(sismografo *modelo.Sismografo) {
 	g.Sismografos = append(g.Sismografos, sismografo)
 }
+func (g *GestorEventosSismicos) GetEstado(ambito, nombre string) *modelo.Estado {
+	if len(g.Estados) == 0 {
+		return nil
+	}
+	for _, estado := range g.Estados {
+		if estado.EsAmbito(ambito) && estado.EsEstado(nombre) {
+			return estado
+		}
+	}
+	return nil
+}
 
 func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) modelo.EventoSismico {
 
@@ -137,15 +149,6 @@ func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) model
 		modelo.NewOrigenDeGeneracion("Artificial", "Actividad humana"),
 		modelo.NewOrigenDeGeneracion("Desconocido", "Origen desconocido"),
 	}
-
-	// Tipos de datos
-	tipoVelocidad := modelo.TipoDeDato{Denominacion: "Velocidad de Onda", NombreUnidadMedidad: "m/s", ValorUmbral: 500}
-	tipoFrecuencia := modelo.TipoDeDato{Denominacion: "Frecuencia de Onda", NombreUnidadMedidad: "Hz", ValorUmbral: 50}
-	tipoLongitud := modelo.TipoDeDato{Denominacion: "Longitud de Onda", NombreUnidadMedidad: "m", ValorUmbral: 200}
-
-	// Series temporales
-	serieTemporal1 := modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
-	// serieTemporal2 := modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
 
 	alcanceSismo := []modelo.AlcanceSismo{
 		modelo.NewAlcanceSismo("Sismo local", "Hasta 100 km"),
@@ -182,7 +185,7 @@ func (g *GestorEventosSismicos) GenerarEventoSismicoAleatorio(tipo string) model
 	}
 
 	g.CrearEvento(g.GetCantidadEventos(), fechaHoraOcurrencia, latitudEpicentro, longitudEpicentro, hipocentro, valorMagnitud, analistaSupervisor, clasificacion, origen, alcance)
-	g.GetUltimoEvento().AddSerieTemporal(serieTemporal1)
+	g.GetUltimoEvento().AddSerieTemporal(modelo.SerieTemporal1)
 	return *g.GetUltimoEvento()
 }
 func randomInt(max int) int {

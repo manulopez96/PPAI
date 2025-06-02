@@ -20,7 +20,7 @@ var origenDeGeneracion []modelo.OrigenDeGeneracion
 var alcanceSismo []modelo.AlcanceSismo
 
 func main() {
-	r := gin.Default() // Crea una instancia del router con middlewares por defecto
+	r := gin.Default() // Creo un router
 
 	// funciones simples para las plantillas (para las funciones mas delicadas usare js)
 	r.SetFuncMap(template.FuncMap{
@@ -43,6 +43,18 @@ func main() {
 	//--------------------------------------------------------------------------------------------------------------------
 	// Codigo Hardcodeado para pruebas
 
+	// Estados
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Auto Confirmado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Auto Detectado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Pendiente de revision"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Bloqueado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Rechazado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Derivado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Aceptado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Pendiente de cierre"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Cerrado"))
+	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Sin revision"))
+
 	// Tipos de datos
 	tipoVelocidad := modelo.TipoDeDato{Denominacion: "Velocidad de Onda", NombreUnidadMedidad: "m/s", ValorUmbral: 500}
 	tipoFrecuencia := modelo.TipoDeDato{Denominacion: "Frecuencia de Onda", NombreUnidadMedidad: "Hz", ValorUmbral: 50}
@@ -53,12 +65,12 @@ func main() {
 	estacionSur := &modelo.EstacionSismologica{Nombre: "Estación Sur"}
 
 	// Series temporales
-	serieTemporal1 := modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
-	serieTemporal2 := modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
+	modelo.SerieTemporal1 = modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
+	modelo.SerieTemporal2 = modelo.GenerarSerieTemporal(tipoVelocidad, tipoFrecuencia, tipoLongitud, time.Now())
 
 	// Sismógrafos
-	sismografo1 := modelo.NewSismografo(time.Now().AddDate(-2, 0, 0), 1, "SN123", serieTemporal1, estacionNorte)
-	sismografo2 := modelo.NewSismografo(time.Now().AddDate(-1, 0, 0), 2, "SS456", serieTemporal2, estacionSur)
+	sismografo1 := modelo.NewSismografo(time.Now().AddDate(-2, 0, 0), 1, "SN123", modelo.SerieTemporal1, estacionNorte)
+	sismografo2 := modelo.NewSismografo(time.Now().AddDate(-1, 0, 0), 2, "SS456", modelo.SerieTemporal2, estacionSur)
 
 	clasificaciones = []modelo.ClasificacionSismo{}
 	clasificaciones = append(clasificaciones, modelo.NewClasificacionSismo(0, 70, "Superficial"))
@@ -85,9 +97,9 @@ func main() {
 	evento1 := modelo.NewEventoSismico(0, time.Now().Add(-time.Hour*4), 900.0, 20.0, 50.0, 3.0, sesionActual, clasificaciones[0], origenDeGeneracion[0], alcanceSismo[0])
 	evento2 := modelo.NewEventoSismico(1, time.Now().Add(-time.Hour*2), 500.0, 350.0, 100.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
 	evento3 := modelo.NewEventoSismico(2, time.Now().Add(-time.Hour), 150.0, 125.0, 150.0, 2.5, sesionActual, clasificaciones[1], origenDeGeneracion[1], alcanceSismo[1])
-	evento1.AddSerieTemporal(serieTemporal1)
-	evento2.AddSerieTemporal(serieTemporal2)
-	evento3.AddSerieTemporal(serieTemporal2)
+	evento1.AddSerieTemporal(modelo.SerieTemporal1)
+	evento2.AddSerieTemporal(modelo.SerieTemporal2)
+	evento3.AddSerieTemporal(modelo.SerieTemporal2)
 
 	gestorEventos.SetSesionActual(&sesionActual)
 	gestorEventos.AddEvento(evento1)

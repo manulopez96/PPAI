@@ -20,3 +20,12 @@ func NewSismografo(fechaAdquisicion time.Time, id int, nroSerie string, serieTem
 		EstacionSismologica: estacion,
 	}
 }
+
+func (s *Sismografo) ContieneSerieTemporal(serie *SerieTemporal) bool {
+	for _, sSerie := range s.SerieTemporal {
+		if sSerie == serie {
+			return true
+		}
+	}
+	return false
+}
