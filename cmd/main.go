@@ -6,7 +6,6 @@ import (
 
 	"ppai/internal/gestor"
 	"ppai/internal/modelo"
-	"ppai/internal/pantalla"
 
 	"text/template"
 	"time"
@@ -37,23 +36,23 @@ func main() {
 	// Cargar plantillas HTML
 	r.LoadHTMLGlob("templates/*")
 
-	gestorEventos := gestor.NewGestorEventos()
-	pantallaEventos := pantalla.NewPantalla(gestorEventos)
+	gestorRegistrarResultado := gestor.NewGestorEventos()
+	gestorPagina := gestor.NewGestorPagina(gestorRegistrarResultado)
 
 	//--------------------------------------------------------------------------------------------------------------------
 	// Codigo Hardcodeado para pruebas
 
 	// Estados
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Auto Confirmado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Auto Detectado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Pendiente de revision"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Bloqueado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Rechazado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Derivado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Aceptado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Pendiente de cierre"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Cerrado"))
-	gestorEventos.Estados = append(gestorEventos.Estados, modelo.NewEstado("Evento sismico", "Sin revision"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Auto Confirmado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Auto Detectado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Pendiente de revision"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Bloqueado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Rechazado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Derivado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Aceptado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Pendiente de cierre"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Cerrado"))
+	gestorRegistrarResultado.Estados = append(gestorRegistrarResultado.Estados, modelo.NewEstado("Evento sismico", "Sin revision"))
 
 	// Tipos de datos
 	tipoVelocidad := modelo.TipoDeDato{Denominacion: "Velocidad de Onda", NombreUnidadMedidad: "m/s", ValorUmbral: 500}
@@ -101,36 +100,34 @@ func main() {
 	evento2.AddSerieTemporal(modelo.SerieTemporal2)
 	evento3.AddSerieTemporal(modelo.SerieTemporal2)
 
-	gestorEventos.SetSesionActual(&sesionActual)
-	gestorEventos.AddEvento(evento1)
-	gestorEventos.AddEvento(evento2)
-	gestorEventos.AddEvento(evento3)
-	gestorEventos.AddSismografo(sismografo1)
-	gestorEventos.AddSismografo(sismografo2)
+	gestorRegistrarResultado.SetSesionActual(&sesionActual)
+	gestorRegistrarResultado.AddEvento(evento1)
+	gestorRegistrarResultado.AddEvento(evento2)
+	gestorRegistrarResultado.AddEvento(evento3)
+	gestorRegistrarResultado.AddSismografo(sismografo1)
+	gestorRegistrarResultado.AddSismografo(sismografo2)
 
 	//--------------------------------------------------------------------------------------------------------------------
 
 	// Ruta inicio
-	r.GET("/", *pantallaEventos.MostrarPaginaPrincipal(gestorEventos))
-	r.GET("/inicio", *pantallaEventos.MostrarPaginaPrincipal(gestorEventos))
+	r.GET("/", *gestorPagina.MostrarPaginaPrincipal(gestorRegistrarResultado))
+	r.GET("/inicio", *gestorPagina.MostrarPaginaPrincipal(gestorRegistrarResultado))
 
-	// Login template
-	r.GET("/login", *pantallaEventos.MostrarLogin(gestorEventos))
+	// Login
+	r.GET("/login", *gestorPagina.MostrarLogin(gestorRegistrarResultado))
 
 	// Procesar login
-	r.POST("/login", *pantallaEventos.HabilitarLogin(gestorEventos))
+	r.POST("/login", *gestorPagina.HabilitarLogin(gestorRegistrarResultado))
 
 	// Cerrar sesion
-	r.GET("/cerrarsesion", *pantallaEventos.HabilitarCerrarSesion(gestorEventos), *pantallaEventos.MostrarPaginaPrincipal(gestorEventos))
-
-	// Crear E.S.
-	r.POST("/sim-es-a", *pantallaEventos.OpcionCrearEventosAleatorios(gestorEventos))
+	r.GET("/cerrarsesion", *gestorPagina.HabilitarCerrarSesion(gestorRegistrarResultado), *gestorPagina.MostrarPaginaPrincipal(gestorRegistrarResultado))
 
 	// Listar E.S.
-	r.POST("/list-es", *pantallaEventos.MostrarListaEventos(gestorEventos))
+	r.POST("/lista-es", *gestorRegistrarResultado.RegistrarResultado())
+	r.POST("/lista-todos-es", *gestorRegistrarResultado.MostrarTodosEventos())
 
 	// Revision manual.
-	r.POST("/review-es", *pantallaEventos.MostrarRevisionManual(gestorEventos))
+	r.POST("/revision", *gestorPagina.MostrarRevisionManual(gestorRegistrarResultado))
 
 	openBrowser("http://localhost:8080/inicio")
 	r.Run(":8080") // Inicia el servidor en el puerto 8080

@@ -81,71 +81,8 @@
               </ul>
               {{end}}
             </li>
-            {{if ne .empleado ""}}
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Simular
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <form action="/sim-es-a" method="POST">
-                    <input
-                      type="text"
-                      class="form-control d-none"
-                      id="sim-tipo"
-                      name="sim-tipo"
-                      required
-                      value="aleatorio"
-                    />
-                    <button type="submit" class="btn dropdown-item">
-                      Generar sismo aleatorio
-                    </button>
-                  </form>
-                </li>
-                <li>
-                  <form action="/sim-es-a" method="POST">
-                    <input
-                      type="text"
-                      class="form-control d-none"
-                      id="sim-tipo"
-                      name="sim-tipo"
-                      required
-                      value="mayor4.0"
-                    />
-                    <button type="submit" class="btn dropdown-item">
-                      Generar sismo mayor a 4.0
-                    </button>
-                  </form>
-                </li>
-                <li>
-                  <form action="/sim-es-a" method="POST">
-                    <input
-                      type="text"
-                      class="form-control d-none"
-                      id="sim-tipo"
-                      name="sim-tipo"
-                      required
-                      value="menor4.0"
-                    />
-                    <button type="submit" class="btn dropdown-item">
-                      Generar sismo menor a 4.0
-                    </button>
-                  </form>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <span class="dropdown-item" href="#">Only test</span>
-                </li>
-              </ul>
-            </li>
-            {{end}}
-            <li class="nav-item dropdown">
+
+            <!-- <li class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
@@ -160,8 +97,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="all"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -173,8 +110,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Auto Detectado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -186,8 +123,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Auto Confirmado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -199,8 +136,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Pendiente de revision"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -212,8 +149,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Derivado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -225,8 +162,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Aceptado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -238,8 +175,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Rechazado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -251,8 +188,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Pendiente de cierre"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -264,8 +201,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Cerrado"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -277,8 +214,8 @@
                   <form action="/list-es" method="POST">
                     <input
                       type="hidden"
-                      id="filter-list"
-                      name="filter-list"
+                      id="opcion"
+                      name="opcion"
                       value="Sin revision"
                     />
                     <button type="submit" class="btn dropdown-item">
@@ -287,13 +224,14 @@
                   </form>
                 </li>
               </ul>
-            </li>
+            </li> -->
+
             <li class="nav-item nav-link active">
-              <form action="/list-es" method="POST">
+              <form action="/lista-es" method="POST">
                 <input
                   type="hidden"
-                  id="filter-list"
-                  name="filter-list"
+                  id="opcion"
+                  name="opcion"
                   value="Registrar resultado de revisión manual"
                 />
                 <button type="submit" class="btn dropdown-item">
@@ -301,19 +239,14 @@
                 </button>
               </form>
             </li>
+            <li class="nav-item nav-link active">
+              <form action="/lista-todos-es" method="POST">
+                <button type="submit" class="btn dropdown-item">
+                  Listar todos los eventos sismicos
+                </button>
+              </form>
+            </li>
           </ul>
-
-          <!-- <form class="d-flex" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-outline-success" type="submit">
-              Search
-            </button>
-          </form> -->
         </div>
       </div>
     </nav>
@@ -321,9 +254,9 @@
       <div class="mt-5">
         {{ if eq .templ "login" }} {{ template "login" . }} {{ else if eq .templ
         "principal" }} {{ template "principal" . }} {{ else if eq .templ
-        "sim-es-a" }} {{ template "sim-es-a" . }} {{ else if eq .templ "list-es"
-        }} {{ template "list-es" . }} {{ else if eq .templ "review-es" }} {{
-        template "review-es" . }} {{ end }}
+        "sim-es-a" }} {{ template "sim-es-a" . }} {{ else if eq .templ "lista-es"
+        }} {{ template "lista-es" . }} {{ else if eq .templ "revision" }} {{
+        template "revision" . }} {{ end }}
       </div>
     </div>
   </body>

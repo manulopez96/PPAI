@@ -5,6 +5,9 @@ type Estado struct {
 	NombreEstado string
 }
 
+const AutoDetectado = "Auto Detectado"
+const AutoConfirmado = "Auto Confirmado"
+
 func NewEstado(ambito, nombre string) *Estado {
 	return &Estado{
 		ambito:       ambito,
@@ -15,9 +18,20 @@ func NewEstado(ambito, nombre string) *Estado {
 func (e *Estado) EsAmbito(ambito string) bool {
 	return e.ambito == ambito
 }
+func (e *Estado) EsAmbitoEventoSismico() bool {
+	return e.ambito == "Evento sismico"
+}
+
 func (e *Estado) EsEstado(estado string) bool {
 	return e.NombreEstado == estado
 }
+func (e *Estado) EsAutodetectado() bool {
+	return e.NombreEstado == AutoDetectado
+}
+func (e *Estado) EsAutoConfirmado() bool {
+	return e.NombreEstado == AutoConfirmado
+}
+
 func (e *Estado) SetNombre(nombre string) {
 	e.NombreEstado = nombre
 }

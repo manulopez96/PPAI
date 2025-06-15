@@ -8,7 +8,7 @@ import (
 type EventoSismico struct {
 	id                  int
 	FechaHoraFin        time.Time
-	fechaHoraOcurrencia time.Time
+	FechaHoraOcurrencia time.Time
 	latitudEpicentro    float64
 	longitudEpicentro   float64
 	hipocentro          float64
@@ -42,7 +42,7 @@ func NewEventoSismico(
 	estado = append(estado, NewCambioEstado(estadoInicial, analistaSupervisor, fechaHoraOcurrencia))
 	return &EventoSismico{
 		id:                  id,
-		fechaHoraOcurrencia: fechaHoraOcurrencia,
+		FechaHoraOcurrencia: fechaHoraOcurrencia,
 		latitudEpicentro:    latitudEpicentro,
 		longitudEpicentro:   longitudEpicentro,
 		hipocentro:          hipocentro,
@@ -61,13 +61,13 @@ func (e *EventoSismico) GetValorMagnitud() float64 {
 	return alcance
 }
 func (e *EventoSismico) GetFechaHoraOcurrencia() time.Time {
-	return e.fechaHoraOcurrencia
+	return e.FechaHoraOcurrencia
 }
 func (e *EventoSismico) GetFecha() string {
-	return e.fechaHoraOcurrencia.Format("2006-01-02")
+	return e.FechaHoraOcurrencia.Format("2006-01-02")
 }
 func (e *EventoSismico) GetHora() string {
-	return e.fechaHoraOcurrencia.Format("15:04:05")
+	return e.FechaHoraOcurrencia.Format("15:04:05")
 }
 func (e *EventoSismico) GetLatitudEpicentro() float64 {
 	return e.latitudEpicentro
@@ -127,24 +127,27 @@ func (e *EventoSismico) GetCambioDeEstado() []CambioEstado {
 }
 
 func (e *EventoSismico) SosAutoDetectado() bool {
-	return e.estadoActual.EsEstado("Auto Detectado")
+	return e.estadoActual.EsAutodetectado()
+}
+func (e *EventoSismico) SosAutoConfirmado() bool {
+	return e.estadoActual.EsAutoConfirmado()
 }
 
 func (e *EventoSismico) String() string {
-	return "\nEvento Sismico: " + e.fechaHoraOcurrencia.String() + "\nLatitud epicentro: " + strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64) + "\nLongitud epicentro:  " + strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64) + "\nHipocentro:  " + strconv.FormatFloat(e.hipocentro, 'f', 2, 64) + "\nAnalista supervisor: " + e.analistaSupervisor.Nombre + " " + e.analistaSupervisor.Apellido + "\nValor magnitud: " + strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64) + "\n"
+	return "\nEvento Sismico: " + e.FechaHoraOcurrencia.String() + "\nLatitud epicentro: " + strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64) + "\nLongitud epicentro:  " + strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64) + "\nHipocentro:  " + strconv.FormatFloat(e.hipocentro, 'f', 2, 64) + "\nAnalista supervisor: " + e.analistaSupervisor.Nombre + " " + e.analistaSupervisor.Apellido + "\nValor magnitud: " + strconv.FormatFloat(e.valorMagnitud, 'f', 2, 64) + "\n"
 }
 
-func (e *EventoSismico) GetDatos() ESCard {
+func (e *EventoSismico) GetDatos() ESString {
 
-	var cardEstados []CECard
+	var cardEstados []CEString
 	for _, cambioEstado := range e.estado {
 		cardEstados = append(cardEstados, cambioEstado.GetCardCambioEstado())
 	}
 
-	cardEventoSismico := ESCard{
+	cardEventoSismico := ESString{
 		// Id:                         strconv.Itoa(e.id),
 		Id:                         (e.id),
-		FechaHoraOcurrencia:        e.fechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
+		FechaHoraOcurrencia:        e.FechaHoraOcurrencia.Format("2006-01-02 15:04:05"),
 		LatitudEpicentro:           strconv.FormatFloat(e.latitudEpicentro, 'f', 2, 64),
 		LongitudEpicentro:          strconv.FormatFloat(e.longitudEpicentro, 'f', 2, 64),
 		Hipocentro:                 strconv.FormatFloat(e.hipocentro, 'f', 2, 64),
@@ -160,7 +163,7 @@ func (e *EventoSismico) GetDatos() ESCard {
 	return cardEventoSismico
 }
 
-type ESCard struct {
+type ESString struct {
 	Id                         int
 	FechaHoraFin               string
 	FechaHoraOcurrencia        string
@@ -174,10 +177,9 @@ type ESCard struct {
 	OrigenDeGeneracion         string
 	AlcanceSismo               string
 	EstadoActual               string
-	Estado                     []CECard
+	Estado                     []CEString
 }
 
 func (e *EventoSismico) GetCalificacion(hipocentro float64, c ClasificacionSismo) bool {
 	return c.EsClasificacion(hipocentro)
 }
-

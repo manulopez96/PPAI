@@ -43,14 +43,14 @@ func (c *CambioEstado) SetResponsableInspeccion(e Empleado) {
 	c.responsableInspeccion = e
 }
 
-func (c *CambioEstado) GetCardCambioEstado() CECard {
+func (c *CambioEstado) GetCardCambioEstado() CEString {
 	fin := ""
 	if c.GetFechaHoraFin() == nil {
 		fin = "Vigente"
 	} else {
 		fin = c.GetFechaHoraFin().Format("2006-01-02 15:04:05")
 	}
-	return CECard{
+	return CEString{
 		FechaHoraInicio:       c.fechaHoraInicio.Format("2006-01-02 15:04:05"),
 		FechaHoraFin:          fin,
 		Estado:                c.estado.GetNombre(),
@@ -58,7 +58,7 @@ func (c *CambioEstado) GetCardCambioEstado() CECard {
 	}
 }
 
-type CECard struct {
+type CEString struct {
 	FechaHoraInicio       string
 	FechaHoraFin          string
 	Estado                string

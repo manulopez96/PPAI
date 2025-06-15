@@ -1,0 +1,193 @@
+{{define "lista-es"}}
+<div class="row">
+  <div class="col-4 overflow-auto" >
+    <div id="list" class="list-group shadow-sm">
+      {{ range $index, $eventoSismico := .cardsEventoSismico }}
+      <a class="list-group-item list-group-item-action" href="#{{$index}}"
+        >Evento sísmico: {{ add $eventoSismico.Id 1}}</a
+      >
+      {{end}}
+    </div>
+  </div>
+  <div class="col-8">
+    <div
+      data-bs-spy="scroll"
+      data-bs-target="#list"
+      data-bs-smooth-scroll="true"
+      class="scrollspy p-2 pt-0 rounded-2"
+      style="position: relative; height: 80vh; overflow: auto"
+      tabindex="0"
+    >
+      {{ range $index, $eventoSismico := .cardsEventoSismico }}
+      <div id="{{$index}}" class="card mb-4  shadow-sm" style="width: 95%">
+        <div class="card-header pt-3">
+          <h4 class="card-title">
+            Evento sísmico: {{ add $eventoSismico.Id 1}}
+          </h4>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush list-unstyled">
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Fecha y hora de la ocurrencia: </strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.FechaHoraOcurrencia }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Latitud del epicentro: </strong>
+              </div>
+              <div class="col-6">{{$eventoSismico.LatitudEpicentro }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Longitud del epicentro:</strong>
+              </div>
+              <div class="col-6">{{$eventoSismico.LongitudEpicentro }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Hipocentro:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.Hipocentro }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Valor magnitud:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.ValorMagnitud }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Analista supervisor:</strong>
+              </div>
+              <div class="col-6">
+                {{ $eventoSismico.AnalistaSupervisorNombre}} {{
+                $eventoSismico.AnalistaSupervisorApellido }}
+              </div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Clasificacion:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.Clasificacion }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Origen del sismo:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.OrigenDeGeneracion }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Alcance:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.AlcanceSismo }}</div>
+            </li>
+            <li class="row w-100">
+              <div class="col-4 mx-2">
+                <strong>Estado:</strong>
+              </div>
+              <div class="col-6">{{ $eventoSismico.EstadoActual }}</div>
+            </li>
+          </ul>
+        </div>
+        <ul class="list-group list-group-flush">
+          {{ range $Estado := $eventoSismico.Estado }}
+          <div class="card-body">
+            <ul class="list-group list-group-flush list-unstyled">
+              <li>
+                <strong>Inicio del estado:</strong>
+                {{ $Estado.FechaHoraInicio }}
+              </li>
+              <li>
+                <strong>Fin del estado:</strong>
+                {{ $Estado.FechaHoraFin }}
+              </li>
+              <li>
+                <strong>Estado:</strong>
+                {{ $Estado.Estado }}
+              </li>
+              <li>
+                <strong>Responsable de la inspeccion:</strong>
+                {{ $Estado.ResponsableInspeccion }}
+              </li>
+            </ul>
+          </div>
+          {{ end }}
+        </ul>
+        <div class="card-body">
+          <form action="/revision" method="POST">
+            <input
+              type="text"
+              class="form-control d-none"
+              id="index"
+              name="index"
+              required
+              value="{{$eventoSismico.Id}}"
+            />
+            <input type="hidden" id="accion" name="accion" value="" />
+            {{ if or (eq $eventoSismico.EstadoActual "Auto Confirmado") (eq
+            $eventoSismico.EstadoActual "Aceptado") }}
+            <button
+              type="button"
+              class="btn btn-success m-2"
+              onclick="submitConAccion(this.form, 'notificar')"
+            >
+              Notificar
+            </button>
+            {{else if eq $eventoSismico.EstadoActual "Pendiente de revision"}}
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="submitConAccion(this.form,'revisar')"
+            >
+              Revisión
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="submitConAccion(this.form,'anular')"
+            >
+              Anular
+            </button>
+            {{else if eq $eventoSismico.EstadoActual "Pendiente de cierre"}}
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="submitConAccion(this.form,'cerrar')"
+            >
+              Cerrar
+            </button>
+            {{else if or (eq $eventoSismico.EstadoActual "Auto Detectado") (eq
+            $eventoSismico.EstadoActual "Derivado") }}
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="submitConAccion(this.form,'revisar')"
+            >
+              Seleccionar
+            </button>
+            {{else if and (eq $eventoSismico.EstadoActual "Bloqueado")}}
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="submitConAccion(this.form,'revisar')"
+            >
+              Seleccionar
+            </button>
+            {{end}}
+          </form>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+<script>
+  function submitConAccion(form, accion) {
+    form.querySelector("#accion").value = accion;
+    form.submit();
+  }
+</script>
+{{end}}
